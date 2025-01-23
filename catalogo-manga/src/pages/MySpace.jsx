@@ -24,13 +24,19 @@ const MySpace = () => {
           {collections.length === 0 ? (
             <p>Sua lista está vazia. Adicione mangás à sua coleção!</p>
           ) : (
-            <div className="manga-list">
+            <div className="manga-list-myspace">
               {collections.map((manga) => (
-                <div key={manga.mal_id} className="manga-item">
+                <div key={manga.mal_id} className="manga-item-myspace">
                   <img src={manga.images.jpg.large_image_url} alt={manga.title} />
-                  <div className="manga-info">
+                  <div className="manga-info-myspace">
                     <h3>{manga.title}</h3>
-                    <p>{manga.synopsis || 'Sem descrição disponível.'}</p>
+                    <p>Rank: {manga.rank || 'Sem descrição disponível.'}</p>
+                    <p>Popularidade: {manga.popularity || 'Sem descrição disponível.'}</p>
+                  </div>
+                  <div className="manga-info-myspace">
+                    <h3>{manga.title}</h3>
+                    <p>Rank: {manga.rank || 'Sem descrição disponível.'}</p>
+                    <p>Popularidade: {manga.popularity || 'Sem descrição disponível.'}</p>
                   </div>
                 </div>
               ))}
@@ -44,13 +50,14 @@ const MySpace = () => {
           {wishlist.length === 0 ? (
             <p>Sua lista de desejos está vazia. Adicione mangás para ler mais tarde!</p>
           ) : (
-            <div className="manga-list">
+            <div className="manga-list-myspace">
               {wishlist.map((manga) => (
-                <div key={manga.mal_id} className="manga-item">
+                <div key={manga.mal_id} className="manga-item-myspace">
                   <img src={manga.images.jpg.large_image_url} alt={manga.title} />
-                  <div className="manga-info">
+                  <div className="manga-info-myspace">
                     <h3>{manga.title}</h3>
-                    <p>{manga.synopsis || 'Sem descrição disponível.'}</p>
+                    <p>Rank: {manga.rank || 'Sem descrição disponível.'}</p>
+                    <p>Popularidade: {manga.popularity || 'Sem descrição disponível.'}</p>
                   </div>
                 </div>
               ))}
