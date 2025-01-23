@@ -4,13 +4,18 @@ const CollectionContext = createContext();
 
 export const CollectionProvider = ({ children }) => {
   const [collections, setCollections] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
 
   const addToCollection = (manga) => {
     setCollections((prev) => [...prev, manga]);
   };
 
+  const addToWishlist = (manga) => {
+    setWishlist((prev) => [...prev, manga]);
+  };
+
   return (
-    <CollectionContext.Provider value={{ collections, addToCollection }}>
+    <CollectionContext.Provider value={{ collections, wishlist, addToCollection, addToWishlist }}>
       {children}
     </CollectionContext.Provider>
   );

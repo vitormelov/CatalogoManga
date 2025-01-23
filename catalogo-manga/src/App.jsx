@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import MySpace from './pages/MySpace';
 import CreateAccount from './pages/CreateAccount';
 import Collection from './pages/Collection';
+import SearchManga from './pages/SearchManga';
 import { CollectionProvider } from './context/CollectionContext.jsx';
 
 const App = () => {
@@ -17,6 +18,7 @@ const App = () => {
           <Route path="/myspace" element={<MySpace />} />
           <Route path="/createaccount" element={<CreateAccount />} />
           <Route path="/collection" element={<Collection />} />
+          <Route path="/searchmanga" element={<SearchManga />} />
         </Routes>
       </Router>
     </CollectionProvider>

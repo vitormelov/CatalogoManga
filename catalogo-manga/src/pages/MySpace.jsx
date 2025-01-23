@@ -1,99 +1,63 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCollection } from '../context/CollectionContext.jsx';
+import { useCollection } from '../context/CollectionContext';
 import '../style/MySpace.css';
 
 const MySpace = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [selectedManga, setSelectedManga] = useState(null);
-
-  const { addToCollection } = useCollection();
   const navigate = useNavigate();
-
-  const handleSearch = async () => {
-    if (!searchQuery) return;
-
-    setLoading(true);
-    setError('');
-    setResults([]);
-
-    try {
-      const response = await axios.get(
-        `https://api.jikan.moe/v4/manga?q=${searchQuery}&limit=10`
-      );
-      setResults(response.data.data);
-    } catch (err) {
-      setError('Erro ao buscar os mangás. Tente novamente mais tarde.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAddToCollection = () => {
-    addToCollection(selectedManga);
-    setShowModal(false);
-    setSelectedManga(null);
-  };
+  const { collections, wishlist } = useCollection();
 
   return (
     <div className="myspace">
+      {/* Header */}
       <header className="myspace-header">
-        <h1>MySpace</h1>
-        <div className="header-options">
-          <button onClick={() => navigate('/collection')}>📚 Coleções</button>
-        </div>
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder="Buscar mangá..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <button onClick={handleSearch}>🔍 Buscar</button>
-        </div>
+        <h1 className="site-title">Catálogo de Mangás</h1>
+        <button className="add-button" onClick={() => navigate('/searchmanga')}>
+          ADICIONAR
+        </button>
       </header>
-      <main>
-        {loading && <p>Carregando...</p>}
-        {error && <p className="error">{error}</p>}
-        <div className="results">
-          {results.map((manga) => (
-            <div
-              key={manga.mal_id}
-              className="manga-item"
-              onClick={() => {
-                setSelectedManga(manga);
-                setShowModal(true);
-              }}
-            >
-              <img src={manga.images.jpg.large_image_url} alt={manga.title} />
-              <div className="manga-info">
-                <h3>{manga.title}</h3>
-                <p>{manga.synopsis || 'Sem descrição disponível.'}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </main>
 
-      {showModal && selectedManga && (
-        <div className="modal">
-          <div className="modal-content">
-            <h2>{selectedManga.title}</h2>
-            <p>Deseja adicionar este mangá à sua coleção?</p>
-            <div className="modal-buttons">
-              <button onClick={handleAddToCollection}>📚 Adicionar à Coleção</button>
+      <main>
+        {/* Minha Lista */}
+        <section className="list-section">
+          <h2>MINHA LISTA</h2>
+          {collections.length === 0 ? (
+            <p>Sua lista está vazia. Adicione mangás à sua coleção!</p>
+          ) : (
+            <div className="manga-list">
+              {collections.map((manga) => (
+                <div key={manga.mal_id} className="manga-item">
+                  <img src={manga.images.jpg.large_image_url} alt={manga.title} />
+                  <div className="manga-info">
+                    <h3>{manga.title}</h3>
+                    <p>{manga.synopsis || 'Sem descrição disponível.'}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <button className="modal-close" onClick={() => setShowModal(false)}>
-              ❌ Fechar
-            </button>
-          </div>
-        </div>
-      )}
+          )}
+        </section>
+
+        {/* Lista de Desejo */}
+        <section className="list-section">
+          <h2>LISTA DE DESEJO</h2>
+          {wishlist.length === 0 ? (
+            <p>Sua lista de desejos está vazia. Adicione mangás para ler mais tarde!</p>
+          ) : (
+            <div className="manga-list">
+              {wishlist.map((manga) => (
+                <div key={manga.mal_id} className="manga-item">
+                  <img src={manga.images.jpg.large_image_url} alt={manga.title} />
+                  <div className="manga-info">
+                    <h3>{manga.title}</h3>
+                    <p>{manga.synopsis || 'Sem descrição disponível.'}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
     </div>
   );
 };
