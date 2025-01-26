@@ -54,6 +54,7 @@
 
 .manga-info-myspace {
   padding: 10px;
+  margin-right: 150px;
 }
 
 /* Modal Overlay */
@@ -105,6 +106,7 @@
 
 .modal-buttons button {
   padding: 10px 20px;
+  width: 150px;
   font-size: 1rem;
   border: none;
   border-radius: 5px;

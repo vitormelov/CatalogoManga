@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useCollection } from '../context/CollectionContext';
 import '../style/MySpace.css';
+import Header from '../components/Header';
 
 const MySpace = () => {
-  const navigate = useNavigate();
   const { collections } = useCollection();
   const [volumes, setVolumes] = useState({}); // Estado para volumes por mangá
   const [currentManga, setCurrentManga] = useState(null); // Mangá atualmente editado
@@ -47,12 +46,7 @@ const MySpace = () => {
 
   return (
     <div className="myspace">
-      <header className="myspace-header">
-        <h1 className="site-title">Catálogo de Mangás</h1>
-        <button className="add-button" onClick={() => navigate('/searchmanga')}>
-          ADICIONAR
-        </button>
-      </header>
+      <Header />
 
       <main>
         <section className="list-section">
@@ -66,15 +60,24 @@ const MySpace = () => {
                   <div className="manga-item-myspace">
                     <img src={manga.images.jpg.large_image_url} alt={manga.title} />
                     <div className="manga-info-myspace">
-                      <h3>{manga.title}</h3>
+                      <p><b>{manga.title}</b></p>
                       <p>Rank: {manga.rank || 'Sem descrição disponível.'}</p>
                       <p>Popularidade: {manga.popularity || 'Sem descrição disponível.'}</p>
+                    </div>
+                    <div className="manga-info-myspace">
+                      <p>Situação: {manga.status || 'Sem descrição disponível.'}</p>
+                      <p>Início da publicação: {manga.published.from || '?'}</p>
+                      <p>Término da publicação: {manga.published.to || '?'}</p>
+                    </div>
+                    <div className="manga-info-myspace">
+                      <p>No. de volumes: {manga.volumes || '?'}</p>
+                      <p>No. de capítulos: {manga.chapters || '?'}</p>
                     </div>
                   </div>
 
                   {/* Volumes e Total */}
                   <div className="volumes-myspace">
-                    <h4>Volumes:</h4>
+                    <h4>Volumes adquiridos:</h4>
                     <ul>
                       {(volumes[manga.mal_id] || []).map((vol, index) => (
                         <li key={index}>

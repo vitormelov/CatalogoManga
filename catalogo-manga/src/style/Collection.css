@@ -1,41 +1,80 @@
-.collection-page {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-    text-align: center;
-  }
-  
-  .collection-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(10%, 1fr));
-    gap: 20px;
-    padding: 20px;
-  }
-  
-  .manga-item {
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    text-align: center;
-  }
-  
-  .manga-item img {
-    width: 100%;
-    height: 300px;
-    object-fit: cover;
-  }
-  
-  .manga-info {
-    padding: 10px;
-  }
-  
-  .manga-info h3 {
-    font-size: 1.2rem;
-    margin: 10px 0;
-  }
-  
-  .manga-info p {
-    font-size: 0.9rem;
-    color: #555;
-  }
-  
+/* Resultados da Pesquisa */
+.search-results {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.manga-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.manga-card:hover {
+  transform: translateY(-5px);
+}
+
+.manga-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.manga-info {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.manga-info h3 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.manga-info p {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.manga-info button {
+  padding: 10px 15px;
+  font-size: 0.9rem;
+  color: white;
+  background-color: #3f51b5;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.manga-info button:hover {
+  background-color: #303f9f;
+}
+
+.modal-container h3 {
+  text-align: center;
+}
+
+.close-modal {
+  text-align: center;
+}
+
+.close-modal button{
+  margin-top: 50px;
+  padding: 10px 20px;
+  width: 150px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: white;
+  background-color: #3f51b5;
+}
