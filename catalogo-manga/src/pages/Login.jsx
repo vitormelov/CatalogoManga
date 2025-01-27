@@ -1,46 +1,54 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../style/Login.css';
 
 const Login = () => {
+  const [formData, setFormData] = useState({ username: '', password: '' });
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    // Validação simples para demonstração
-    if (email === 'usuario@exemplo.com' && password === '123456') {
-      navigate('/myspace');
-    } else {
-      alert('Email ou senha incorretos!');
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post('http://localhost:5000/api/users/login', formData);
+      localStorage.setItem('token', response.data.token); // Salvar o token
+      navigate('/myspace'); // Redirecionar para MySpace
+    } catch (error) {
+      setMessage(error.response?.data?.message || 'Erro ao realizar login.');
     }
   };
 
-  const handleCreateAccount = () => {
-    navigate('/createaccount');
-  };
-
   return (
-    <div className="login">
-      <div className="login-container">
-        <h1>Login</h1>
-        <input
-          type="email"
-          placeholder="Digite seu email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Digite sua senha"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button onClick={handleLogin}>Entrar</button>
+    <div className='login'>
+      <div className='login-container'>
+        <h2>Login</h2>
+        <form onSubmit={handleSubmit}>
+          <label>Nome de Usuário:</label>
+          <input
+            type="text"
+            name="username"
+            value={formData.username}
+            onChange={handleChange}
+            required
+          />
+          <label>Senha:</label>
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+          <button type="submit">Entrar</button>
+        </form>
+        {message && <p>{message}</p>}
         <p>Não tem uma conta?</p>
-        <button onClick={handleCreateAccount} className="create-account-btn">
-          Criar Conta
-        </button>
+        <button onClick={() => navigate('/createaccount')}>Criar Conta</button>
       </div>
     </div>
   );
