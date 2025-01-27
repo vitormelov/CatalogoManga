@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { useCollection } from '../context/CollectionContext';
-import '../style/MySpace.css';
+import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
+import '../style/MySpace.css';
 
 const MySpace = () => {
-  const { collections } = useCollection();
+  const [collections, setCollections] = useState([]); // Coleção obtida do backend
   const [volumes, setVolumes] = useState({}); // Estado para volumes por mangá
   const [currentManga, setCurrentManga] = useState(null); // Mangá atualmente editado
   const [formData, setFormData] = useState({
@@ -15,6 +14,24 @@ const MySpace = () => {
     status: 'Lacrado', // Valor padrão para a situação
   });
 
+  // Função para buscar a coleção do usuário no backend
+  useEffect(() => {
+    const fetchCollections = async () => {
+      const token = localStorage.getItem('token'); // Obtém o token do usuário
+      const userId = JSON.parse(atob(token.split('.')[1])).id; // Decodifica o ID do usuário do token
+
+      try {
+        const response = await fetch(`http://localhost:5000/api/mangas?userId=${userId}&listType=collection`);
+        const data = await response.json();
+        setCollections(data);
+      } catch (error) {
+        console.error('Erro ao buscar coleção:', error);
+      }
+    };
+
+    fetchCollections();
+  }, []);
+
   // Função para abrir o formulário modal
   const openForm = (mangaId) => {
     setCurrentManga(mangaId);
@@ -22,7 +39,7 @@ const MySpace = () => {
   };
 
   // Função para salvar o volume
-  const saveVolume = () => {
+  const saveVolume = async () => {
     if (!currentManga) return;
 
     const mangaVolumes = volumes[currentManga] || [];
@@ -35,6 +52,24 @@ const MySpace = () => {
       ...volumes,
       [currentManga]: [...mangaVolumes, newVolume],
     });
+
+    // Atualizar o backend com o novo volume
+    try {
+      await fetch(`http://localhost:5000/api/mangas/add-volume`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          mangaId: currentManga,
+          volume: newVolume,
+        }),
+      });
+
+      alert('Volume adicionado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao salvar volume:', error);
+    }
 
     setCurrentManga(null); // Fechar o modal
   };

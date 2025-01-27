@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Header from '../components/Header';
-import { useCollection } from '../context/CollectionContext'; // Importa o contexto
 import '../style/Collection.css';
 
 const Collection = () => {
@@ -8,8 +7,6 @@ const Collection = () => {
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedManga, setSelectedManga] = useState(null);
-
-  const { addToCollection, addToWishlist } = useCollection(); // Funções do contexto
 
   // Função para buscar mangás
   const handleSearch = async () => {
@@ -38,13 +35,38 @@ const Collection = () => {
   };
 
   // Função para adicionar o mangá à coleção ou lista de desejos
-  const handleAdd = (type) => {
-    if (type === 'collection') {
-      addToCollection(selectedManga); // Adiciona à coleção
-    } else if (type === 'wishlist') {
-      addToWishlist(selectedManga); // Adiciona à lista de desejos
+  const handleAdd = async (type) => {
+    const token = localStorage.getItem('token'); // Obtém o token do usuário
+    const userId = JSON.parse(atob(token.split('.')[1])).id; // Decodifica o ID do usuário do token
+  
+    const mangaData = {
+      userId,
+      mal_id: selectedManga.mal_id,
+      title: selectedManga.title,
+      images: selectedManga.images,
+      rank: selectedManga.rank,
+      popularity: selectedManga.popularity,
+      published: selectedManga.published,
+      volumes: selectedManga.volumes,
+      chapters: selectedManga.chapters,
+      listType: type, // 'collection' ou 'wishlist'
+    };
+  
+    try {
+      const response = await fetch('http://localhost:5000/api/mangas/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(mangaData),
+      });
+  
+      const data = await response.json();
+      alert(data.message);
+      closeModal();
+    } catch (error) {
+      console.error('Erro ao salvar mangá:', error);
     }
-    closeModal();
   };
 
   return (
