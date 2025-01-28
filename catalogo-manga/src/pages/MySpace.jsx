@@ -31,6 +31,24 @@ const MySpace = () => {
     fetchCollections();
   }, []);
 
+    // Função para deletar um mangá
+    const deleteManga = async (mangaId) => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/mangas/delete/${mangaId}`, {
+          method: 'DELETE',
+        });
+  
+        if (response.ok) {
+          setCollections((prev) => prev.filter((manga) => manga._id !== mangaId));
+          alert('Mangá deletado com sucesso!');
+        } else {
+          alert('Erro ao deletar mangá.');
+        }
+      } catch (error) {
+        console.error('Erro ao deletar mangá:', error);
+      }
+    };
+
   // Função para abrir o formulário modal
   const openForm = (mangaId) => {
     setCurrentManga(mangaId);
@@ -97,7 +115,7 @@ const MySpace = () => {
                   <div className="manga-item-myspace">
                     <img src={manga.images.jpg.large_image_url} alt={manga.title} />
                     <div className="manga-info-myspace">
-                      <p><b>{manga.title}</b></p>
+                      <p><b>{manga.title_}</b></p>
                       <p>Rank: {manga.rank || 'Sem descrição disponível.'}</p>
                       <p>Popularidade: {manga.popularity || 'Sem descrição disponível.'}</p>
                     </div>
@@ -124,6 +142,7 @@ const MySpace = () => {
                     </ul>
                     <p><strong>Total:</strong> R$ {calculateTotal(manga.vols)}</p>
                     <button onClick={() => openForm(manga._id)}>Adicionar Volume</button>
+                    <button onClick={() => deleteManga(manga._id)} className="delete-button">Deletar</button>
                   </div>
                 </div>
               ))}
