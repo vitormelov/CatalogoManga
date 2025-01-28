@@ -4,7 +4,6 @@ import '../style/MySpace.css';
 
 const MySpace = () => {
   const [collections, setCollections] = useState([]); // Coleção obtida do backend
-  const [volumes, setVolumes] = useState({}); // Estado para volumes por mangá
   const [currentManga, setCurrentManga] = useState(null); // Mangá atualmente editado
   const [formData, setFormData] = useState({
     volume: '',
@@ -17,8 +16,8 @@ const MySpace = () => {
   // Função para buscar a coleção do usuário no backend
   useEffect(() => {
     const fetchCollections = async () => {
-      const token = localStorage.getItem('token'); // Obtém o token do usuário
-      const userId = JSON.parse(atob(token.split('.')[1])).id; // Decodifica o ID do usuário do token
+      const token = localStorage.getItem('token');
+      const userId = JSON.parse(atob(token.split('.')[1])).id;
 
       try {
         const response = await fetch(`http://localhost:5000/api/mangas?userId=${userId}&listType=collection`);
@@ -42,20 +41,13 @@ const MySpace = () => {
   const saveVolume = async () => {
     if (!currentManga) return;
 
-    const mangaVolumes = volumes[currentManga] || [];
     const newVolume = {
       ...formData,
-      price: parseFloat(formData.price), // Garantir que seja número
+      price: parseFloat(formData.price), // Garantir que o preço seja um número
     };
 
-    setVolumes({
-      ...volumes,
-      [currentManga]: [...mangaVolumes, newVolume],
-    });
-
-    // Atualizar o backend com o novo volume
     try {
-      await fetch(`http://localhost:5000/api/mangas/add-volume`, {
+      const response = await fetch('http://localhost:5000/api/mangas/add-volume', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -66,7 +58,17 @@ const MySpace = () => {
         }),
       });
 
-      alert('Volume adicionado com sucesso!');
+      if (response.ok) {
+        const updatedManga = await response.json();
+        setCollections((prev) =>
+          prev.map((manga) =>
+            manga._id === currentManga ? { ...manga, vols: updatedManga.manga.vols } : manga
+          )
+        );
+        alert('Volume adicionado com sucesso!');
+      } else {
+        alert('Erro ao salvar volume.');
+      }
     } catch (error) {
       console.error('Erro ao salvar volume:', error);
     }
@@ -74,10 +76,10 @@ const MySpace = () => {
     setCurrentManga(null); // Fechar o modal
   };
 
-  // Calcular o total de volumes
-  const calculateTotal = (mangaId) => {
-    return (volumes[mangaId] || []).reduce((total, vol) => total + vol.price, 0).toFixed(2);
-  };
+    // Função para calcular o total dos volumes de um mangá
+    const calculateTotal = (volumes) => {
+      return volumes.reduce((total, vol) => total + vol.price, 0).toFixed(2);
+    };
 
   return (
     <div className="myspace">
@@ -85,7 +87,7 @@ const MySpace = () => {
 
       <main>
         <section className="list-section">
-          <h2>MINHA LISTA</h2>
+        <h2>MINHA LISTA</h2>
           {collections.length === 0 ? (
             <p>Sua lista está vazia. Adicione mangás à sua coleção!</p>
           ) : (
@@ -114,14 +116,14 @@ const MySpace = () => {
                   <div className="volumes-myspace">
                     <h4>Volumes adquiridos:</h4>
                     <ul>
-                      {(volumes[manga.mal_id] || []).map((vol, index) => (
+                      {manga.vols.map((vol, index) => (
                         <li key={index}>
                           Volume No. {vol.volume}: {vol.name} - R$ {vol.price.toFixed(2)} ({vol.date}) - Situação: {vol.status}
                         </li>
                       ))}
                     </ul>
-                    <p><strong>Total:</strong> R$ {calculateTotal(manga.mal_id)}</p>
-                    <button onClick={() => openForm(manga.mal_id)}>Adicionar Volume</button>
+                    <p><strong>Total:</strong> R$ {calculateTotal(manga.vols)}</p>
+                    <button onClick={() => openForm(manga._id)}>Adicionar Volume</button>
                   </div>
                 </div>
               ))}
