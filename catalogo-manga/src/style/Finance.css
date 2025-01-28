@@ -1,0 +1,58 @@
+
+  .finance-main {
+    width:100%;
+    text-align: center;
+    justify-items: center;
+  }
+
+  .finance-section {
+    width: 95%;
+  }
+  
+  .finance-main h2 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: #3f51b5;
+  }
+  
+  .finance-main p {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    color: #555;
+  }
+  
+  /* Tabela de Coleções */
+  .finance-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+  }
+  
+  .finance-table th,
+  .finance-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  .finance-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+  
+  .finance-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .finance-table tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* Valor Total */
+  .finance-total {
+    margin-top: 30px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #3f51b5;
+  }
+  
