@@ -62,4 +62,21 @@ const addVolume = async (req, res) => {
   }
 };
 
-module.exports = { addManga, getMangas, addVolume };
+// Deletar um mangá por ID
+const deleteManga = async (req, res) => {
+  try {
+    const { mangaId } = req.params;
+
+    const deletedManga = await Manga.findByIdAndDelete(mangaId);
+
+    if (!deletedManga) {
+      return res.status(404).json({ message: 'Mangá não encontrado.' });
+    }
+
+    res.status(200).json({ message: 'Mangá deletado com sucesso!', deletedManga });
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao deletar mangá.', error });
+  }
+};
+
+module.exports = { addManga, getMangas, addVolume, deleteManga };
