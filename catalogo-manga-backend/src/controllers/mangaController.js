@@ -42,4 +42,24 @@ const getMangas = async (req, res) => {
   }
 };
 
-module.exports = { addManga, getMangas };
+// Adicionar volume a um mangá
+const addVolume = async (req, res) => {
+  try {
+    const { mangaId, volume } = req.body;
+
+    const manga = await Manga.findById(mangaId);
+
+    if (!manga) {
+      return res.status(404).json({ message: 'Mangá não encontrado.' });
+    }
+
+    manga.vols.push(volume);
+    await manga.save();
+
+    res.status(200).json({ message: 'Volume adicionado com sucesso!', manga });
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao adicionar volume.', error });
+  }
+};
+
+module.exports = { addManga, getMangas, addVolume };
