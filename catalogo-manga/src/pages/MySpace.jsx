@@ -5,6 +5,7 @@ import '../style/MySpace.css';
 const MySpace = () => {
   const [collections, setCollections] = useState([]); // Coleção obtida do backend
   const [currentManga, setCurrentManga] = useState(null); // Mangá atualmente editado
+  const [currentVolumeIndex, setCurrentVolumeIndex] = useState(null); // Índice do volume sendo editado
   const [formData, setFormData] = useState({
     volume: '',
     name: '',
@@ -31,48 +32,64 @@ const MySpace = () => {
     fetchCollections();
   }, []);
 
-    // Função para deletar um mangá
-    const deleteManga = async (mangaId) => {
-      try {
-        const response = await fetch(`http://localhost:5000/api/mangas/delete/${mangaId}`, {
-          method: 'DELETE',
-        });
-  
-        if (response.ok) {
-          setCollections((prev) => prev.filter((manga) => manga._id !== mangaId));
-          alert('Mangá deletado com sucesso!');
-        } else {
-          alert('Erro ao deletar mangá.');
-        }
-      } catch (error) {
-        console.error('Erro ao deletar mangá:', error);
-      }
-    };
+  // Função para deletar um mangá
+  const deleteManga = async (mangaId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/mangas/delete/${mangaId}`, {
+        method: 'DELETE',
+      });
 
-  // Função para abrir o formulário modal
-  const openForm = (mangaId) => {
-    setCurrentManga(mangaId);
-    setFormData({ volume: '', name: '', date: '', price: '', status: 'Lacrado' });
+      if (response.ok) {
+        setCollections((prev) => prev.filter((manga) => manga._id !== mangaId));
+        alert('Mangá deletado com sucesso!');
+      } else {
+        alert('Erro ao deletar mangá.');
+      }
+    } catch (error) {
+      console.error('Erro ao deletar mangá:', error);
+    }
   };
 
-  // Função para salvar o volume
+  // Função para abrir o modal para adicionar ou editar volume
+  const openForm = (mangaId, volumeIndex = null) => {
+    setCurrentManga(mangaId);
+    setCurrentVolumeIndex(volumeIndex);
+
+    if (volumeIndex !== null) {
+      const selectedVolume = collections
+        .find((manga) => manga._id === mangaId)
+        .vols[volumeIndex];
+      setFormData({ ...selectedVolume });
+    } else {
+      setFormData({ volume: '', name: '', date: '', price: '', status: 'Lacrado' });
+    }
+  };
+
+  // Função para salvar ou editar o volume
   const saveVolume = async () => {
     if (!currentManga) return;
 
     const newVolume = {
       ...formData,
-      price: parseFloat(formData.price), // Garantir que o preço seja um número
+      price: parseFloat(formData.price),
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/mangas/add-volume', {
-        method: 'POST',
+      const endpoint = currentVolumeIndex !== null
+        ? 'http://localhost:5000/api/mangas/update-volume'
+        : 'http://localhost:5000/api/mangas/add-volume';
+
+      const method = currentVolumeIndex !== null ? 'PUT' : 'POST';
+
+      const response = await fetch(endpoint, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           mangaId: currentManga,
           volume: newVolume,
+          volumeIndex: currentVolumeIndex,
         }),
       });
 
@@ -83,7 +100,7 @@ const MySpace = () => {
             manga._id === currentManga ? { ...manga, vols: updatedManga.manga.vols } : manga
           )
         );
-        alert('Volume adicionado com sucesso!');
+        alert(currentVolumeIndex !== null ? 'Volume atualizado com sucesso!' : 'Volume adicionado com sucesso!');
       } else {
         alert('Erro ao salvar volume.');
       }
@@ -91,13 +108,41 @@ const MySpace = () => {
       console.error('Erro ao salvar volume:', error);
     }
 
-    setCurrentManga(null); // Fechar o modal
+    setCurrentManga(null);
+    setCurrentVolumeIndex(null);
   };
 
-    // Função para calcular o total dos volumes de um mangá
-    const calculateTotal = (volumes) => {
-      return volumes.reduce((total, vol) => total + vol.price, 0).toFixed(2);
-    };
+  // Função para deletar um volume
+  const deleteVolume = async (mangaId, volumeIndex) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/mangas/delete-volume', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ mangaId, volumeIndex }),
+      });
+
+      if (response.ok) {
+        const updatedManga = await response.json();
+        setCollections((prev) =>
+          prev.map((manga) =>
+            manga._id === mangaId ? { ...manga, vols: updatedManga.manga.vols } : manga
+          )
+        );
+        alert('Volume deletado com sucesso!');
+      } else {
+        alert('Erro ao deletar volume.');
+      }
+    } catch (error) {
+      console.error('Erro ao deletar volume:', error);
+    }
+  };
+
+  // Função para calcular o total dos volumes de um mangá
+  const calculateTotal = (volumes) => {
+    return volumes.reduce((total, vol) => total + vol.price, 0).toFixed(2);
+  };
 
   return (
     <div className="myspace">
@@ -115,7 +160,7 @@ const MySpace = () => {
                   <div className="manga-item-myspace">
                     <img src={manga.images.jpg.large_image_url} alt={manga.title} />
                     <div className="manga-info-myspace">
-                      <p><b>{manga.title_}</b></p>
+                      <p><b>{manga.title}</b></p>
                       <p>Rank: {manga.rank || 'Sem descrição disponível.'}</p>
                       <p>Popularidade: {manga.popularity || 'Sem descrição disponível.'}</p>
                     </div>
@@ -137,12 +182,13 @@ const MySpace = () => {
                       {manga.vols.map((vol, index) => (
                         <li key={index}>
                           Volume No. {vol.volume}: {vol.name} - R$ {vol.price.toFixed(2)} ({vol.date}) - Situação: {vol.status}
+                          <button onClick={() => deleteVolume(manga._id, index)}>Deletar</button>
                         </li>
                       ))}
                     </ul>
                     <p><strong>Total:</strong> R$ {calculateTotal(manga.vols)}</p>
                     <button onClick={() => openForm(manga._id)}>Adicionar Volume</button>
-                    <button onClick={() => deleteManga(manga._id)} className="delete-button">Deletar</button>
+                    <button onClick={() => deleteManga(manga._id)} className="delete-button">Deletar Mangá</button>
                   </div>
                 </div>
               ))}
@@ -155,7 +201,7 @@ const MySpace = () => {
       {currentManga && (
         <div className="modal-overlay">
           <div className="modal-container">
-            <h3>Adicionar Volume</h3>
+            <h3>{currentVolumeIndex !== null ? 'Editar Volume' : 'Adicionar Volume'}</h3>
             <label>
               Número do Volume:
               <input
@@ -201,7 +247,7 @@ const MySpace = () => {
             </label>
             <div className="modal-buttons">
               <button onClick={saveVolume}>Salvar</button>
-              <button onClick={() => setCurrentManga(null)}>Cancelar</button>
+              <button onClick={() => { setCurrentManga(null); setCurrentVolumeIndex(null); }}>Cancelar</button>
             </div>
           </div>
         </div>

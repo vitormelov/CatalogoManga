@@ -1,4 +1,11 @@
 /* Configuração da página Home */
+@font-face {
+  font-family: 'laoriental'; /* Nome que você dará à fonte */
+  src: url('../../public/fonts/LaOriental.otf') format('truetype'); /* Outros formatos, se necessário */
+  font-weight: normal; /* Peso da fonte (normal, bold, etc.) */
+  font-style: normal; /* Estilo da fonte (normal, italic, etc.) */
+}
+
 .home {
     height: 100vh;
     width: 100%;
@@ -32,7 +39,9 @@
   }
   
   .home-content h1 {
-    font-size: 3rem;
+    font-family: 'laoriental', serif;
+    font-size: 4rem;
+    margin-top: 0;
     margin-bottom: 10px;
   }
   
