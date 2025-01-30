@@ -1,7 +1,7 @@
 /* Configuração da página Home */
 @font-face {
-  font-family: 'laoriental'; /* Nome que você dará à fonte */
-  src: url('../../public/fonts/LaOriental.otf') format('truetype'); /* Outros formatos, se necessário */
+  font-family: 'animeace2'; /* Nome que você dará à fonte */
+  src: url('../../public/fonts/animeace2_reg.ttf') format('truetype'); /* Outros formatos, se necessário */
   font-weight: normal; /* Peso da fonte (normal, bold, etc.) */
   font-style: normal; /* Estilo da fonte (normal, italic, etc.) */
 }
@@ -39,8 +39,8 @@
   }
   
   .home-content h1 {
-    font-family: 'laoriental', serif;
-    font-size: 4rem;
+    font-family: 'animeace2', serif;
+    font-size: 3rem;
     margin-top: 0;
     margin-bottom: 10px;
   }

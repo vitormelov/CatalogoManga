@@ -43,4 +43,30 @@
   .login-container button:hover {
     background-color: #303f9f;
   }
+
+  .link-text {
+    color: #3f51b5; /* Cor azul para parecer um link */
+    cursor: pointer; /* Muda o cursor para indicar que é clicável */
+    text-decoration: underline; /* Adiciona sublinhado */
+    transition: color 0.3s ease; /* Transição suave de cor */
+  }
+  
+  .link-text:hover {
+    color: #283593; /* Cor mais escura ao passar o mouse */
+  }
+
+  .back-button {
+    background-color: transparent; /* Fundo transparente */
+    border: none; /* Sem borda */
+    color: #3f51b5; /* Cor azul para parecer um link */
+    cursor: pointer; /* Muda o cursor para indicar que é clicável */
+    font-size: 0.9rem; /* Tamanho da fonte */
+    margin-top: 10px; /* Espaçamento acima do botão */
+    text-decoration: underline; /* Adiciona sublinhado */
+    transition: color 0.3s ease; /* Transição suave de cor */
+  }
+  
+  .back-button:hover {
+    color: #283593; /* Cor mais escura ao passar o mouse */
+  }
   

@@ -136,3 +136,46 @@
   background-color: white;
 }
 
+/* Estilo para os botões de Adicionar Volume, Deletar Volume e Deletar Mangá */
+button {
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin: 5px;
+}
+
+/* Botão Adicionar Volume */
+button.add-volume-button {
+  background-color: #28a745; /* Verde */
+  color: white;
+}
+
+button.add-volume-button:hover {
+  background-color: #218838; /* Verde mais escuro */
+  transform: scale(1.05);
+}
+
+/* Botão Deletar Volume */
+button.delete-volume-button {
+  background-color: #dc3545; /* Vermelho */
+  color: white;
+}
+
+button.delete-volume-button:hover {
+  background-color: #c82333; /* Vermelho mais escuro */
+  transform: scale(1.05);
+}
+
+/* Botão Deletar Mangá */
+button.delete-manga-button {
+  background-color: #dc3545; /* Laranja */
+  color: white;
+}
+
+button.delete-manga-button:hover {
+  background-color: #c82333; /* Laranja mais escuro */
+  transform: scale(1.05);
+}

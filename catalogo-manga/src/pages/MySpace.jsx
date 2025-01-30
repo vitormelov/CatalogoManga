@@ -182,13 +182,13 @@ const MySpace = () => {
                       {manga.vols.map((vol, index) => (
                         <li key={index}>
                           Volume No. {vol.volume}: {vol.name} - R$ {vol.price.toFixed(2)} ({vol.date}) - Situação: {vol.status}
-                          <button onClick={() => deleteVolume(manga._id, index)}>Deletar</button>
+                          <button className='delete-volume-button' onClick={() => deleteVolume(manga._id, index)}>Deletar</button>
                         </li>
                       ))}
                     </ul>
                     <p><strong>Total:</strong> R$ {calculateTotal(manga.vols)}</p>
-                    <button onClick={() => openForm(manga._id)}>Adicionar Volume</button>
-                    <button onClick={() => deleteManga(manga._id)} className="delete-button">Deletar Mangá</button>
+                    <button className='add-volume-button' onClick={() => openForm(manga._id)}>Adicionar Volume</button>
+                    <button className="delete-manga-button" onClick={() => deleteManga(manga._id)}>Deletar Mangá</button>
                   </div>
                 </div>
               ))}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // Importe o useNavigate
 import '../style/Login.css';
 
 const CreateAccount = () => {
@@ -10,6 +11,7 @@ const CreateAccount = () => {
     confirmPassword: '',
   });
   const [message, setMessage] = useState('');
+  const navigate = useNavigate(); // Inicialize o useNavigate
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -72,6 +74,11 @@ const CreateAccount = () => {
           <button type="submit">Criar Conta</button>
         </form>
         {message && <p>{message}</p>}
+
+        {/* Botão para voltar ao Login */}
+        <button className="back-button" onClick={() => navigate('/login')}>
+          Voltar para o Login
+        </button>
       </div>
     </div>
   );

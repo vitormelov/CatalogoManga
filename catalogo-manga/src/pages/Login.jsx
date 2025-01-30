@@ -47,8 +47,12 @@ const Login = () => {
           <button type="submit">Entrar</button>
         </form>
         {message && <p>{message}</p>}
-        <p>Não tem uma conta?</p>
-        <button onClick={() => navigate('/createaccount')}>Criar Conta</button>
+        <p>
+          Não tem uma conta?{' '}
+          <span className="link-text" onClick={() => navigate('/createaccount')}>
+            Clique aqui
+          </span>
+        </p>
       </div>
     </div>
   );

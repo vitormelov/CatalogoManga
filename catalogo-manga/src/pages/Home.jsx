@@ -16,7 +16,7 @@ const Home = () => {
         Seu navegador não suporta vídeos HTML5.
       </video>
       <div className="home-content">
-        <h1>CATALOG</h1>
+        <h1>CATÁLOGO DE MANGÁS</h1>
         <p>Bem-vindo ao seu organizador digital de mangás! Aqui você pode catalogar, explorar e gerenciar suas coleções favoritas.</p>
         <button onClick={handleStart}>COMEÇAR</button>
       </div>
