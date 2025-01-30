@@ -65,16 +65,22 @@ const addVolume = async (req, res) => {
 // Deletar um mangá por ID
 const deleteManga = async (req, res) => {
   try {
-    const { mangaId } = req.params;
+    const { mangaId } = req.params; // Pegando o ID da URL
 
+    if (!mangaId) {
+      return res.status(400).json({ message: 'ID do mangá não fornecido.' });
+    }
+
+    // Deleta o mangá do banco de dados
     const deletedManga = await Manga.findByIdAndDelete(mangaId);
 
     if (!deletedManga) {
       return res.status(404).json({ message: 'Mangá não encontrado.' });
     }
 
-    res.status(200).json({ message: 'Mangá deletado com sucesso!', deletedManga });
+    res.status(200).json({ message: 'Mangá deletado com sucesso!' });
   } catch (error) {
+    console.error('Erro ao deletar mangá:', error);
     res.status(500).json({ message: 'Erro ao deletar mangá.', error });
   }
 };
@@ -99,4 +105,25 @@ const deleteVolume = async (req, res) => {
   }
 };
 
-module.exports = { addManga, getMangas, addVolume, deleteManga, deleteVolume };
+const moveMangaToCollection = async (req, res) => {
+  try {
+    const { userId, mangaId } = req.body;
+
+    // Atualiza o listType do mangá para "collection"
+    const updatedManga = await Manga.findOneAndUpdate(
+      { userId, _id: mangaId },
+      { listType: 'collection' },
+      { new: true }
+    );
+
+    if (!updatedManga) {
+      return res.status(404).json({ message: 'Mangá não encontrado na wishlist.' });
+    }
+
+    res.status(200).json({ message: 'Mangá movido para a coleção!', updatedManga });
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao mover mangá.', error });
+  }
+};
+
+module.exports = { addManga, getMangas, addVolume, deleteManga, deleteVolume, moveMangaToCollection };
