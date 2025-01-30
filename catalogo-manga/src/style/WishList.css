@@ -135,5 +135,40 @@
     background-color: white;
   }
   
+  .wishlist-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
   
+  .wishlist-move-button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    flex: 1;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
   
+  .wishlist-move-button:hover {
+    background-color: #45a049;
+  }
+  
+  .wishlist-delete-button {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    flex: 1;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .wishlist-delete-button:hover {
+    background-color: #c0392b;
+  }

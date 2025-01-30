@@ -3,13 +3,13 @@ import Header from '../components/Header';
 import '../style/WishList.css';
 
 const WishList = () => {
-  const [wishlist, setWishlist] = useState([]); // Estado para armazenar os mangás da lista de desejos
+  const [wishlist, setWishlist] = useState([]);
 
-  // Função para buscar a lista de desejos do backend
+  // Buscar a lista de desejos do backend
   useEffect(() => {
     const fetchWishlist = async () => {
-      const token = localStorage.getItem('token'); // Obtém o token do usuário
-      const userId = JSON.parse(atob(token.split('.')[1])).id; // Decodifica o ID do usuário do token
+      const token = localStorage.getItem('token');
+      const userId = JSON.parse(atob(token.split('.')[1])).id;
 
       try {
         const response = await fetch(`http://localhost:5000/api/mangas?userId=${userId}&listType=wishlist`);
@@ -22,6 +22,48 @@ const WishList = () => {
 
     fetchWishlist();
   }, []);
+
+  // Função para mover o mangá para a coleção (alterando apenas o listType)
+  const moveToCollection = async (mangaId) => {
+    const token = localStorage.getItem('token');
+    const userId = JSON.parse(atob(token.split('.')[1])).id;
+
+    try {
+      const response = await fetch('http://localhost:5000/api/mangas/move-to-collection', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, mangaId }),
+      });
+
+      if (response.ok) {
+        setWishlist((prev) => prev.filter((manga) => manga._id !== mangaId));
+        alert('Mangá movido para a coleção!');
+      } else {
+        alert('Erro ao mover o mangá.');
+      }
+    } catch (error) {
+      console.error('Erro ao mover mangá:', error);
+    }
+  };
+
+  // Função para deletar o mangá (já existente no MySpace)
+  const deleteManga = async (mangaId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/mangas/delete/${mangaId}`, {
+        method: 'DELETE',
+      });
+  
+      if (response.ok) {
+        setWishlist((prev) => prev.filter((manga) => manga._id !== mangaId));
+        alert('Mangá deletado com sucesso!');
+      } else {
+        const errorData = await response.json();
+        alert(`Erro ao deletar o mangá: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error('Erro ao deletar mangá:', error);
+    }
+  };
 
   return (
     <div className="wishlist">
@@ -37,9 +79,7 @@ const WishList = () => {
                 <div className="manga-item-wishlist">
                   <img src={manga.images.jpg.large_image_url} alt={manga.title} />
                   <div className="manga-info-wishlist">
-                    <p>
-                      <b>{manga.title}</b>
-                    </p>
+                    <p><b>{manga.title}</b></p>
                     <p>Rank: {manga.rank || 'Sem descrição disponível.'}</p>
                     <p>Popularidade: {manga.popularity || 'Sem descrição disponível.'}</p>
                   </div>
@@ -52,6 +92,16 @@ const WishList = () => {
                     <p>No. de volumes: {manga.volumes || '?'}</p>
                     <p>No. de capítulos: {manga.chapters || '?'}</p>
                   </div>
+                </div>
+
+                {/* Botões para mover e deletar */}
+                <div className="wishlist-buttons">
+                  <button className="wishlist-move-button" onClick={() => moveToCollection(manga._id)}>
+                    ➕ Adicionar à Coleção
+                  </button>
+                  <button className="wishlist-delete-button" onClick={() => deleteManga(manga._id)}>
+                    ❌ Deletar
+                  </button>
                 </div>
               </div>
             ))}

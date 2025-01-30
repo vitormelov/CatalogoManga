@@ -9,6 +9,7 @@ export const CollectionProvider = ({ children }) => {
   // Adicionar à coleção
   const addToCollection = (manga) => {
     setCollections((prev) => [...prev, manga]);
+    setWishlist((prev) => prev.filter((item) => item.mal_id !== manga.mal_id)); // Remove da wishlist
   };
 
   // Adicionar à lista de desejos
@@ -20,7 +21,9 @@ export const CollectionProvider = ({ children }) => {
     <CollectionContext.Provider
       value={{
         collections,
+        setCollections,
         wishlist,
+        setWishlist,
         addToCollection,
         addToWishlist,
       }}
