@@ -39,4 +39,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/api/mangas', mangaRoutes);
 app.use('/api/users', userRoutes);
 
+// Rota de teste
+app.get('/', (req, res) => {
+  res.send('API do Catálogo de Mangás está funcionando!');
+});
+
+// Tratamento de erros global
+app.use((err, req, res, next) => {
+  console.error('Erro global:', err);
+  res.status(500).json({ message: 'Erro interno do servidor.', error: err.message });
+});
+
 module.exports = app;

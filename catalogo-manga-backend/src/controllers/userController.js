@@ -13,11 +13,17 @@ const createUser = async (req, res) => {
       return res.status(400).json({ message: 'Usuário ou e-mail já cadastrados!' });
     }
 
-    const user = new User({ username, email, password });
+    // Hash da senha antes de salvar
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const user = new User({ username, email, password: hashedPassword });
     await user.save();
+
     res.status(201).json({ message: 'Conta criada com sucesso!' });
   } catch (error) {
-    res.status(500).json({ message: 'Erro ao criar a conta.', error });
+    console.error('Erro ao criar a conta:', error);
+    res.status(500).json({ message: 'Erro ao criar a conta.', error: error.message });
   }
 };
 
@@ -47,7 +53,8 @@ const loginUser = async (req, res) => {
       user: { id: user._id, username: user.username },
     });
   } catch (error) {
-    res.status(500).json({ message: 'Erro ao realizar login.', error });
+    console.error('Erro ao realizar login:', error);
+    res.status(500).json({ message: 'Erro ao realizar login.', error: error.message });
   }
 };
 
