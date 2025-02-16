@@ -7,18 +7,33 @@ const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
-// 🔹 Configuração do CORS para permitir requisições do frontend no Vercel
+// 🔹 Configuração global do CORS (permitindo o frontend no Vercel)
+const allowedOrigins = ['https://catalogo-manga.vercel.app'];
+
 app.use(cors({
-  origin: 'https://catalogo-manga.vercel.app', // Permite apenas o frontend hospedado no Vercel
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: 'GET,POST,PUT,DELETE',
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
-// 🔹 Middleware para garantir que todas as respostas incluam os headers CORS
+// 🔹 Middleware para forçar a inclusão dos headers CORS
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "https://catalogo-manga.vercel.app");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  // Se for uma requisição de "preflight" (OPTIONS), respondemos imediatamente
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+
   next();
 });
 
