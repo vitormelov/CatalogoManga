@@ -1,13 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const mongoose = require('./config/db');
-const mangaRoutes = require('./routes/mangaRoutes');
-const userRoutes = require('./routes/userRoutes');
+const userRoutes = require('./routes/userRoutes'); // Importa as rotas de usuário
 
 const app = express();
 
-// 🔹 CORS correto para permitir o Vercel
+// Configuração do CORS
 const allowedOrigins = ['https://catalogo-manga.vercel.app'];
 
 app.use(cors({
@@ -27,7 +25,7 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
+    return res.sendStatus(204); // Responde à requisição OPTIONS com status 204
   }
   next();
 });
@@ -36,8 +34,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Rotas
-app.use('/api/mangas', mangaRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api/users', userRoutes); // Usa as rotas de usuário
 
 // Rota de teste
 app.get('/', (req, res) => {
@@ -50,4 +47,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Erro interno do servidor.', error: err.message });
 });
 
-module.exports = app;
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
