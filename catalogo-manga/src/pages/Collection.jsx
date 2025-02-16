@@ -53,7 +53,7 @@ const Collection = () => {
     };
   
     try {
-      const response = await fetch('http://localhost:5000/api/mangas/add', {
+      const response = await fetch('https://catalogomanga.onrender.com//api/mangas/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

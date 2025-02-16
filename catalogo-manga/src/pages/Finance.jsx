@@ -13,7 +13,7 @@ const Finance = () => {
       const userId = JSON.parse(atob(token.split('.')[1])).id; // Decodifica o ID do usuário do token
 
       try {
-        const response = await fetch(`http://localhost:5000/api/mangas?userId=${userId}&listType=collection`);
+        const response = await fetch(`https://catalogomanga.onrender.com//api/mangas?userId=${userId}&listType=collection`);
         const data = await response.json();
 
         // Calcula o custo total para cada coleção de mangá
