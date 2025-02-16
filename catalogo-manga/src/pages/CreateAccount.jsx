@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Importe o useNavigate
+import { useNavigate } from 'react-router-dom';
 import '../style/Login.css';
 
 const CreateAccount = () => {
@@ -11,7 +11,10 @@ const CreateAccount = () => {
     confirmPassword: '',
   });
   const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // Inicialize o useNavigate
+  const navigate = useNavigate();
+
+  // Definir a URL do backend a partir do ambiente
+  const API_URL = process.env.REACT_APP_API_URL || 'https://catalogo-manga-backend.onrender.com';
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -20,15 +23,19 @@ const CreateAccount = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Verificar se a senha e a confirmação são iguais
     if (formData.password !== formData.confirmPassword) {
       setMessage('As senhas não coincidem.');
       return;
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/users/register', formData);
+      const response = await axios.post(`${API_URL}/api/users/register`, formData);
       setMessage(response.data.message);
+
+      // Se a conta foi criada com sucesso, redireciona para o login
+      if (response.status === 201) {
+        setTimeout(() => navigate('/login'), 2000);
+      }
     } catch (error) {
       setMessage(error.response?.data?.message || 'Erro ao criar conta.');
     }
