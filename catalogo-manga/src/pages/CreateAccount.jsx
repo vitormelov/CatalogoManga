@@ -29,7 +29,13 @@ const CreateAccount = () => {
     }
 
     try {
-      const response = await axios.post(`${API_URL}/api/users/register`, formData);
+      const response = await axios.post(`${API_URL}/api/users/register`, formData, {
+        withCredentials: true, // 🔹 Importante para garantir autenticação e CORS correto
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
       setMessage(response.data.message);
 
       // Se a conta foi criada com sucesso, redireciona para o login
