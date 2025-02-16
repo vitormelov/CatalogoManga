@@ -1,21 +1,9 @@
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
+require('dotenv').config();
 
-dotenv.config();
-
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log('Conectado ao MongoDB com sucesso!');
-  } catch (error) {
-    console.error('Erro ao conectar ao MongoDB:', error);
-    process.exit(1);
-  }
-};
-
-connectDB();
-
-module.exports = mongoose;
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('✅ MongoDB Atlas conectado!'))
+.catch((error) => console.error('❌ Erro ao conectar ao MongoDB:', error));
