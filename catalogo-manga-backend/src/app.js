@@ -1,21 +1,17 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const userRoutes = require('./routes/userRoutes'); // Importa as rotas de usuário
+const mongoose = require('./config/db');
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
-// Configuração do CORS
-const allowedOrigins = ['https://catalogo-manga.vercel.app'];
+// 🔹 Lista de domínios permitidos
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://catalogo-manga.vercel.app'
+];
 
-app.use(cors({
-  origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-}));
-
-// Middleware para garantir que o CORS funcione corretamente
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
@@ -24,27 +20,38 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
   }
+
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(204); // Responde à requisição OPTIONS com status 204
+    return res.sendStatus(204); // Responde imediatamente para preflight requests
   }
+
   next();
 });
 
+// 🔹 Middleware CORS (agora sempre antes das rotas)
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
+// 🔹 Middlewares do Express
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Rotas
-app.use('/api/users', userRoutes); // Usa as rotas de usuário
+// 🔹 Rotas
+app.use('/api/users', userRoutes);
 
-// Rota de teste
+// 🔹 Rota de teste para verificar se a API está rodando corretamente
 app.get('/', (req, res) => {
-  res.send('API do Catálogo de Mangás está funcionando!');
+  res.send('✅ API do Catálogo de Mangás está funcionando!');
 });
 
-// Tratamento de erros global
+// 🔹 Middleware para capturar erros globais
 app.use((err, req, res, next) => {
   console.error('Erro global:', err);
   res.status(500).json({ message: 'Erro interno do servidor.', error: err.message });
 });
 
-module.exports = app; // 🔹 Exporta o app
+module.exports = app;
