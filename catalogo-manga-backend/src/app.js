@@ -10,11 +10,7 @@ const app = express();
 console.log('✅ Backend iniciado!');
 
 // 🔹 Lista de domínios permitidos
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://catalogo-manga.vercel.app',
-  'https://catalogomanga.onrender.com'
-];
+const allowedOrigins = ['https://catalogo-manga.vercel.app'];
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
