@@ -9,9 +9,11 @@ const app = express();
 // 🔹 Lista de domínios permitidos
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://catalogo-manga.vercel.app'
+  'https://catalogo-manga.vercel.app',
+  'https://catalogomanga.onrender.com'
 ];
 
+// 🔹 Middleware CORS - Permite requisições do Frontend (Vercel)
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
@@ -22,35 +24,28 @@ app.use((req, res, next) => {
   }
 
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(204); // Responde imediatamente para preflight requests
+    return res.status(204).end(); // Responde imediatamente as preflight requests
   }
 
   next();
 });
 
-// 🔹 Middleware CORS (agora sempre antes das rotas)
-app.use(cors({
-  origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-}));
-
-// 🔹 Middlewares do Express
+// 🔹 Middleware Express
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors()); // Mantém o CORS ativo para qualquer outra requisição
 
 // 🔹 Rotas
 app.use('/api/users', userRoutes);
 
-// 🔹 Rota de teste para verificar se a API está rodando corretamente
+// 🔹 Rota de Teste
 app.get('/', (req, res) => {
   res.send('✅ API do Catálogo de Mangás está funcionando!');
 });
 
-// 🔹 Middleware para capturar erros globais
+// 🔹 Middleware de Erro Global
 app.use((err, req, res, next) => {
-  console.error('Erro global:', err);
+  console.error('❌ Erro global:', err);
   res.status(500).json({ message: 'Erro interno do servidor.', error: err.message });
 });
 
