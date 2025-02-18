@@ -14,7 +14,7 @@ const CreateAccount = () => {
   const navigate = useNavigate();
 
   // Definir a URL do backend a partir do ambiente
-  const API_URL = process.env.REACT_APP_API_URL || 'https://catalogo-manga-backend.onrender.com';
+  const API_URL = process.env.REACT_APP_API_URL || 'https://catalogomanga.onrender.com';
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

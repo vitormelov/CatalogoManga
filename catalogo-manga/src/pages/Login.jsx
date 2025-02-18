@@ -15,7 +15,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://catalogomanga.onrender.com//api/users/login', formData);
+      const response = await axios.post('https://catalogomanga.onrender.com/api/users/login', formData);
       localStorage.setItem('token', response.data.token); // Salvar o token
       navigate('/myspace'); // Redirecionar para MySpace
     } catch (error) {

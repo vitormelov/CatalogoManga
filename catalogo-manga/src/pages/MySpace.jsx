@@ -21,7 +21,7 @@ const MySpace = () => {
       const userId = JSON.parse(atob(token.split('.')[1])).id;
 
       try {
-        const response = await fetch(`https://catalogomanga.onrender.com//api/mangas?userId=${userId}&listType=collection`);
+        const response = await fetch(`https://catalogomanga.onrender.com/api/mangas?userId=${userId}&listType=collection`);
         const data = await response.json();
         setCollections(data);
       } catch (error) {
@@ -35,7 +35,7 @@ const MySpace = () => {
   // Função para deletar um mangá
   const deleteManga = async (mangaId) => {
     try {
-      const response = await fetch(`https://catalogomanga.onrender.com//api/mangas/delete/${mangaId}`, {
+      const response = await fetch(`https://catalogomanga.onrender.com/api/mangas/delete/${mangaId}`, {
         method: 'DELETE',
       });
 
@@ -76,8 +76,8 @@ const MySpace = () => {
 
     try {
       const endpoint = currentVolumeIndex !== null
-        ? 'https://catalogomanga.onrender.com//api/mangas/update-volume'
-        : 'https://catalogomanga.onrender.com//api/mangas/add-volume';
+        ? 'https://catalogomanga.onrender.com/api/mangas/update-volume'
+        : 'https://catalogomanga.onrender.com/api/mangas/add-volume';
 
       const method = currentVolumeIndex !== null ? 'PUT' : 'POST';
 
@@ -115,7 +115,7 @@ const MySpace = () => {
   // Função para deletar um volume
   const deleteVolume = async (mangaId, volumeIndex) => {
     try {
-      const response = await fetch('https://catalogomanga.onrender.com//api/mangas/delete-volume', {
+      const response = await fetch('https://catalogomanga.onrender.com/api/mangas/delete-volume', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

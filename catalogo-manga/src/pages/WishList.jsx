@@ -12,7 +12,7 @@ const WishList = () => {
       const userId = JSON.parse(atob(token.split('.')[1])).id;
 
       try {
-        const response = await fetch(`https://catalogomanga.onrender.com//api/mangas?userId=${userId}&listType=wishlist`);
+        const response = await fetch(`https://catalogomanga.onrender.com/api/mangas?userId=${userId}&listType=wishlist`);
         const data = await response.json();
         setWishlist(data);
       } catch (error) {
@@ -29,7 +29,7 @@ const WishList = () => {
     const userId = JSON.parse(atob(token.split('.')[1])).id;
 
     try {
-      const response = await fetch('https://catalogomanga.onrender.com//api/mangas/move-to-collection', {
+      const response = await fetch('https://catalogomanga.onrender.com/api/mangas/move-to-collection', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, mangaId }),
@@ -49,7 +49,7 @@ const WishList = () => {
   // Função para deletar o mangá (já existente no MySpace)
   const deleteManga = async (mangaId) => {
     try {
-      const response = await fetch(`https://catalogomanga.onrender.com//api/mangas/delete/${mangaId}`, {
+      const response = await fetch(`https://catalogomanga.onrender.com/api/mangas/delete/${mangaId}`, {
         method: 'DELETE',
       });
   
