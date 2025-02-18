@@ -6,6 +6,9 @@ const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 
+// 🔹 Testar se o backend inicia corretamente
+console.log('✅ Backend iniciado!');
+
 // 🔹 Lista de domínios permitidos
 const allowedOrigins = [
   'http://localhost:3000',
@@ -13,7 +16,6 @@ const allowedOrigins = [
   'https://catalogomanga.onrender.com'
 ];
 
-// 🔹 Middleware CORS - Permite requisições do Frontend (Vercel)
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
@@ -24,7 +26,7 @@ app.use((req, res, next) => {
   }
 
   if (req.method === 'OPTIONS') {
-    return res.status(204).end(); // Responde imediatamente as preflight requests
+    return res.status(204).end();
   }
 
   next();
@@ -33,10 +35,12 @@ app.use((req, res, next) => {
 // 🔹 Middleware Express
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors()); // Mantém o CORS ativo para qualquer outra requisição
+app.use(cors());
 
-// 🔹 Rotas
+// 🔹 Teste se as rotas estão carregando corretamente
+console.log('🔄 Carregando rotas...');
 app.use('/api/users', userRoutes);
+console.log('✅ Rotas carregadas!');
 
 // 🔹 Rota de Teste
 app.get('/', (req, res) => {

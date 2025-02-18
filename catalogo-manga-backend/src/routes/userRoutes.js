@@ -3,15 +3,21 @@ const { createUser, loginUser } = require('../controllers/userController');
 
 const router = express.Router();
 
+// 🔹 Log para verificar se as rotas estão sendo carregadas
+console.log('🔄 Carregando rotas de usuários...');
+
 // 🔹 Criar conta
-router.post('/register', createUser);
+router.post('/register', (req, res, next) => {
+  console.log('📩 Requisição recebida em /register');
+  next();
+}, createUser);
 
-// 🔹 Login do usuário
-router.post('/login', loginUser);
+// 🔹 Login
+router.post('/login', (req, res, next) => {
+  console.log('📩 Requisição recebida em /login');
+  next();
+}, loginUser);
 
-// 🔹 Teste para verificar se a API está rodando
-router.get('/test', (req, res) => {
-  res.send('🔹 API de Usuário está ativa!');
-});
+console.log('✅ Rotas de usuários carregadas!');
 
 module.exports = router;
