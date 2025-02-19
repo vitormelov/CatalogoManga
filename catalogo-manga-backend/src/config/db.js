@@ -12,14 +12,16 @@ if (!MONGO_URI) {
 
 const connectDB = async () => {
   try {
-    console.log('🔄 Conectando ao MongoDB Atlas...');
+    console.log('🔄 Tentando conectar ao MongoDB Atlas...');
     await mongoose.connect(MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 10000, // Timeout para evitar loops infinitos
     });
+
     console.log('✅ Conectado ao MongoDB Atlas!');
   } catch (error) {
-    console.error('❌ Erro ao conectar ao MongoDB:', error);
+    console.error('❌ Erro ao conectar ao MongoDB:', error.message);
     process.exit(1);
   }
 };
