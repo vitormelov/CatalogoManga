@@ -17,7 +17,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${API_URL}/users/login`, formData, { withCredentials: true });
+      const response = await axios.post(`${API_URL}/api/users/login`, formData, { withCredentials: true });
       localStorage.setItem('token', response.data.token);
       navigate('/myspace');
     } catch (error) {
