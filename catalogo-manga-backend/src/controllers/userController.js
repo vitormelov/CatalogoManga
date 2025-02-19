@@ -43,14 +43,12 @@ const createUser = async (req, res) => {
   }
 };
 
-// Login do usuário
 const loginUser = async (req, res) => {
   try {
     console.log("📩 Requisição recebida em /login");
 
     const { username, password } = req.body;
 
-    // Verificar se os campos foram preenchidos
     if (!username || !password) {
       console.log("❌ Erro: Campos obrigatórios faltando!");
       return res.status(400).json({ message: "Usuário e senha são obrigatórios!" });
@@ -59,15 +57,17 @@ const loginUser = async (req, res) => {
     console.log(`🔍 Buscando usuário: ${username}`);
 
     // Buscar usuário no banco
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ username }).select("+password");
     if (!user) {
       console.log("❌ Usuário não encontrado!");
       return res.status(400).json({ message: "Usuário não encontrado!" });
     }
 
     console.log("🔑 Verificando senha...");
+    console.log(`🔍 Senha enviada: ${password}`);
+    console.log(`🔍 Senha salva no banco: ${user.password}`);
 
-    // Comparar senha digitada com a salva no banco
+    // Comparar senha fornecida com a salva no banco
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
