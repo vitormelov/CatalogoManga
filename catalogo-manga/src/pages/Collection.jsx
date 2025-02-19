@@ -51,9 +51,11 @@ const Collection = () => {
       chapters: selectedManga.chapters,
       listType: type, // 'collection' ou 'wishlist'
     };
+
+    const API_URL = process.env.REACT_APP_API_URL || 'https://catalogomanga.onrender.com';
   
     try {
-      const response = await fetch('https://catalogomanga.onrender.com/api/mangas/add', {
+      const response = await fetch(`${API_URL}/api/mangas/add`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
