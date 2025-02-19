@@ -42,49 +42,47 @@ const createUser = async (req, res) => {
   }
 };
 
-// Login do usuário
 const loginUser = async (req, res) => {
   try {
-    console.log('📩 Recebendo requisição para login...');
-    
     const { username, password } = req.body;
 
-    if (!username || !password) {
-      console.error('❌ Erro: Campos obrigatórios faltando!');
-      return res.status(400).json({ message: 'Usuário e senha são obrigatórios!' });
-    }
-
-    // Verificar se o usuário existe
+    console.log("📩 Requisição recebida em /login");
+    console.log(`📩 Recebendo requisição para login...`);
     console.log(`🔍 Buscando usuário: ${username}`);
+
+    // Buscar o usuário no banco
     const user = await User.findOne({ username });
-
     if (!user) {
-      console.error('❌ Erro: Usuário não encontrado!');
-      return res.status(400).json({ message: 'Usuário não encontrado!' });
+      console.log("❌ Usuário não encontrado!");
+      return res.status(400).json({ message: "Usuário não encontrado!" });
     }
 
-    // Verificar a senha
-    console.log('🔑 Verificando senha...');
+    console.log("🔑 Verificando senha...");
+    console.log(`🔍 Senha enviada: ${password}`);
+    console.log(`🔍 Senha no banco: ${user.password}`);
+
+    // Comparar a senha fornecida com a hash salva no banco
     const isPasswordValid = await bcrypt.compare(password, user.password);
+
     if (!isPasswordValid) {
-      console.error('❌ Erro: Senha incorreta!');
-      return res.status(400).json({ message: 'Senha incorreta!' });
+      console.log("❌ Erro: Senha incorreta!");
+      return res.status(400).json({ message: "Senha incorreta!" });
     }
+
+    console.log("✅ Senha verificada com sucesso!");
 
     // Gerar um token JWT
-    console.log('🔐 Gerando token JWT...');
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
-    console.log('✅ Login realizado com sucesso!');
+    console.log("✅ Login realizado com sucesso!");
     res.status(200).json({
-      message: 'Login realizado com sucesso!',
+      message: "Login realizado com sucesso!",
       token,
       user: { id: user._id, username: user.username },
     });
-
   } catch (error) {
-    console.error('❌ Erro ao realizar login:', error);
-    res.status(500).json({ message: 'Erro ao realizar login.', error: error.message });
+    console.error("❌ Erro ao realizar login:", error);
+    res.status(500).json({ message: "Erro ao realizar login.", error: error.message });
   }
 };
 
