@@ -15,7 +15,7 @@ const createUser = async (req, res) => {
       return res.status(400).json({ message: 'Todos os campos são obrigatórios!' });
     }
 
-    // Verificar se o e-mail ou nome de usuário já estão cadastrados
+    // Verificar se o usuário já existe
     console.log('🔍 Verificando se o usuário já existe...');
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
 
@@ -24,11 +24,12 @@ const createUser = async (req, res) => {
       return res.status(400).json({ message: 'Usuário ou e-mail já cadastrados!' });
     }
 
-    // Hash da senha antes de salvar
+    // Criar hash da senha antes de salvar
     console.log('🔒 Criando hash da senha...');
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Criar novo usuário
     console.log('✅ Criando usuário no banco de dados...');
     const user = new User({ username, email, password: hashedPassword });
     await user.save();
@@ -42,15 +43,22 @@ const createUser = async (req, res) => {
   }
 };
 
+// Login do usuário
 const loginUser = async (req, res) => {
   try {
+    console.log("📩 Requisição recebida em /login");
+
     const { username, password } = req.body;
 
-    console.log("📩 Requisição recebida em /login");
-    console.log(`📩 Recebendo requisição para login...`);
+    // Verificar se os campos foram preenchidos
+    if (!username || !password) {
+      console.log("❌ Erro: Campos obrigatórios faltando!");
+      return res.status(400).json({ message: "Usuário e senha são obrigatórios!" });
+    }
+
     console.log(`🔍 Buscando usuário: ${username}`);
 
-    // Buscar o usuário no banco
+    // Buscar usuário no banco
     const user = await User.findOne({ username });
     if (!user) {
       console.log("❌ Usuário não encontrado!");
@@ -58,28 +66,27 @@ const loginUser = async (req, res) => {
     }
 
     console.log("🔑 Verificando senha...");
-    console.log(`🔍 Senha enviada: ${password}`);
-    console.log(`🔍 Senha no banco: ${user.password}`);
 
-    // Comparar a senha fornecida com a hash salva no banco
+    // Comparar senha digitada com a salva no banco
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      console.log("❌ Erro: Senha incorreta!");
+      console.log("❌ Senha incorreta!");
       return res.status(400).json({ message: "Senha incorreta!" });
     }
 
-    console.log("✅ Senha verificada com sucesso!");
+    console.log("✅ Senha correta!");
 
-    // Gerar um token JWT
+    // Gerar token JWT
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
     console.log("✅ Login realizado com sucesso!");
     res.status(200).json({
       message: "Login realizado com sucesso!",
       token,
-      user: { id: user._id, username: user.username },
+      user: { id: user._id, username: user.username, email: user.email },
     });
+
   } catch (error) {
     console.error("❌ Erro ao realizar login:", error);
     res.status(500).json({ message: "Erro ao realizar login.", error: error.message });
