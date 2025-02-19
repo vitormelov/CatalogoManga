@@ -12,7 +12,7 @@ const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const API_URL = process.env.REACT_APP_API_URL || '';
+  const API_URL = process.env.REACT_APP_API_URL || 'https://catalogomanga.onrender.com';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
