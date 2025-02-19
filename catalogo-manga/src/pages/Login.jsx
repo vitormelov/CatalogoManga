@@ -12,12 +12,14 @@ const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const API_URL = process.env.REACT_APP_API_URL || '';
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://catalogomanga.onrender.com/api/users/login', formData);
-      localStorage.setItem('token', response.data.token); // Salvar o token
-      navigate('/myspace'); // Redirecionar para MySpace
+      const response = await axios.post(`${API_URL}/users/login`, formData, { withCredentials: true });
+      localStorage.setItem('token', response.data.token);
+      navigate('/myspace');
     } catch (error) {
       setMessage(error.response?.data?.message || 'Erro ao realizar login.');
     }
