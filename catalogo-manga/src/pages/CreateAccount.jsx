@@ -13,7 +13,6 @@ const CreateAccount = () => {
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
-  // Definir a URL do backend a partir do ambiente
   const API_URL = process.env.REACT_APP_API_URL || 'https://catalogomanga.onrender.com';
 
   const handleChange = (e) => {
@@ -29,20 +28,13 @@ const CreateAccount = () => {
     }
 
     try {
-      const response = await axios.post(`${API_URL}/api/users/register`, {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-      }, {
-        withCredentials: true, // 🔹 Importante para garantir autenticação e CORS correto
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const response = await axios.post(`${API_URL}/api/users/register`, formData, {
+        withCredentials: true // Permitir envio de cookies
       });
 
       setMessage(response.data.message);
 
-      // Se a conta foi criada com sucesso, redireciona para o login
+      // Se a conta foi criada, redireciona para o login
       if (response.status === 201) {
         setTimeout(() => navigate('/login'), 2000);
       }
@@ -92,7 +84,6 @@ const CreateAccount = () => {
         </form>
         {message && <p>{message}</p>}
 
-        {/* Botão para voltar ao Login */}
         <button className="back-button" onClick={() => navigate('/login')}>
           Voltar para o Login
         </button>
