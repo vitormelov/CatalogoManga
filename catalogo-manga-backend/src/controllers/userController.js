@@ -9,13 +9,11 @@ const createUser = async (req, res) => {
 
     const { username, email, password } = req.body;
 
-    // Validação: verificar se todos os campos estão preenchidos
     if (!username || !email || !password) {
       console.error('❌ Erro: Campos obrigatórios faltando!');
       return res.status(400).json({ message: 'Todos os campos são obrigatórios!' });
     }
 
-    // Verificar se o usuário já existe
     console.log('🔍 Verificando se o usuário já existe...');
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
 
@@ -24,14 +22,8 @@ const createUser = async (req, res) => {
       return res.status(400).json({ message: 'Usuário ou e-mail já cadastrados!' });
     }
 
-    // Criar hash da senha antes de salvar
-    console.log('🔒 Criando hash da senha...');
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // Criar novo usuário
     console.log('✅ Criando usuário no banco de dados...');
-    const user = new User({ username, email, password: hashedPassword });
+    const user = new User({ username, email, password }); // 🔹 Não faz hash aqui
     await user.save();
 
     console.log('🎉 Usuário criado com sucesso!');

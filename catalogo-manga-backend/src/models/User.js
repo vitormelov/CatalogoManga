@@ -1,31 +1,17 @@
-const createUser = async (req, res) => {
-  try {
-    console.log('📩 Recebendo requisição para criar usuário...');
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
-    const { username, email, password } = req.body;
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+});
 
-    if (!username || !email || !password) {
-      console.error('❌ Erro: Campos obrigatórios faltando!');
-      return res.status(400).json({ message: 'Todos os campos são obrigatórios!' });
-    }
+// Middleware para hash da senha antes de salvar
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
 
-    console.log('🔍 Verificando se o usuário já existe...');
-    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-
-    if (existingUser) {
-      console.error('❌ Erro: Usuário já existe!');
-      return res.status(400).json({ message: 'Usuário ou e-mail já cadastrados!' });
-    }
-
-    console.log('✅ Criando usuário no banco de dados...');
-    const user = new User({ username, email, password }); // 🔹 Não faz hash aqui
-    await user.save();
-
-    console.log('🎉 Usuário criado com sucesso!');
-    res.status(201).json({ message: 'Conta criada com sucesso!' });
-
-  } catch (error) {
-    console.error('❌ Erro ao criar a conta:', error);
-    res.status(500).json({ message: 'Erro ao criar a conta.', error: error.message });
-  }
-};
+module.exports = mongoose.model('User', userSchema);
