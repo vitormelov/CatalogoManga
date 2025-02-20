@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const userRoutes = require('./routes/userRoutes'); 
+const mangaRoutes = require('./routes/mangaRoutes')
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // 🔹 Carregar Rotas
 app.use('/api/users', userRoutes);
+app.use('/api/mangas', mangaRoutes); // Usa as rotas de mangá
 
 // 🔹 Rota de Teste
 app.get('/', (req, res) => {
