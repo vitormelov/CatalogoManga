@@ -1,18 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../style/Home.css';
 
 const Home = () => {
   const navigate = useNavigate();
+  const [currentVideo, setCurrentVideo] = useState('');
+
+  useEffect(() => {
+    const randomValue = Math.random();
+    setCurrentVideo(randomValue < 0.5 ? '/videos/background.mp4' : '/videos/background2.mp4');
+  }, []); // O array vazio garante que o código execute apenas uma vez, ao montar o componente
 
   const handleStart = () => {
-    navigate('/login'); // Redireciona para a página de login
+    navigate('/login');
   };
 
   return (
     <div className="home">
       <video className="background-video" autoPlay loop muted>
-        <source src="/videos/background.mp4" type="video/mp4" />
+        <source src={currentVideo} type="video/mp4" />
         Seu navegador não suporta vídeos HTML5.
       </video>
       <div className="home-content">
