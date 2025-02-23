@@ -1,5 +1,5 @@
 const express = require('express');
-const { createUser, loginUser, getWishlistMangas } = require('../controllers/userController');
+const { createUser, loginUser, getWishlistMangas, getCollectionMangas } = require('../controllers/userController');
 
 const router = express.Router();
 
