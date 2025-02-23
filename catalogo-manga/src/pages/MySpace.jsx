@@ -33,117 +33,116 @@ const MySpace = () => {
     fetchCollections();
   }, []);
 
-  // 🟢 Função para deletar um mangá
-  const deleteManga = async (mangaId) => {
-    try {
-      const response = await fetch(`https://catalogomanga.onrender.com/api/mangas/delete/${mangaId}`, {
-        method: 'DELETE',
-      });
+// 🟢 Deletar um mangá da coleção do usuário
+const deleteManga = async (mangaId) => {
+  const token = localStorage.getItem('token');
+  const userId = JSON.parse(atob(token.split('.')[1])).id;
 
-      if (response.ok) {
-        setCollections((prev) => prev.filter((manga) => manga._id !== mangaId));
-        alert('Mangá deletado com sucesso!');
-      } else {
-        alert('Erro ao deletar mangá.');
-      }
-    } catch (error) {
-      console.error('Erro ao deletar mangá:', error);
-    }
-  };
-  
-  // Função para abrir o modal para adicionar ou editar volume
-  const openForm = (mangaId, volumeIndex = null) => {
-    setCurrentManga(mangaId);
-    setCurrentVolumeIndex(volumeIndex);
+  try {
+    const response = await fetch(`https://catalogomanga.onrender.com/api/users/${userId}/delete-manga`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ mangaId }),
+    });
 
-    if (volumeIndex !== null) {
-      const selectedVolume = collections
-        .find((manga) => manga._id === mangaId)
-        .vols[volumeIndex];
-      setFormData({ ...selectedVolume });
+    if (response.ok) {
+      setCollections((prev) => prev.filter((manga) => manga._id !== mangaId));
+      alert('✅ Mangá deletado com sucesso!');
     } else {
-      setFormData({ volume: '', name: '', date: '', price: '', status: 'Lacrado' });
+      alert('❌ Erro ao deletar mangá.');
     }
+  } catch (error) {
+    console.error('❌ Erro ao deletar mangá:', error);
+  }
+};
+
+// 🟢 Abrir modal para adicionar ou editar volume
+const openForm = (mangaId, volumeIndex = null) => {
+  setCurrentManga(mangaId);
+  setCurrentVolumeIndex(volumeIndex);
+
+  if (volumeIndex !== null) {
+    const selectedVolume = collections
+      .find((manga) => manga._id === mangaId)
+      .vols[volumeIndex];
+    setFormData({ ...selectedVolume });
+  } else {
+    setFormData({ volume: '', name: '', date: '', price: '', status: 'Lacrado' });
+  }
+};
+
+// 🟢 Salvar ou editar volume no MongoDB
+const saveVolume = async () => {
+  if (!currentManga) return;
+  
+  const token = localStorage.getItem('token');
+  const userId = JSON.parse(atob(token.split('.')[1])).id;
+  
+  const newVolume = {
+    ...formData,
+    price: parseFloat(formData.price),
   };
 
-  // Função para salvar ou editar o volume
-  const saveVolume = async () => {
-    if (!currentManga) return;
+  try {
+    const response = await fetch(`https://catalogomanga.onrender.com/api/users/${userId}/update-volume`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        mangaId: currentManga,
+        volume: newVolume,
+        volumeIndex: currentVolumeIndex,
+      }),
+    });
 
-    const newVolume = {
-      ...formData,
-      price: parseFloat(formData.price),
-    };
-
-    try {
-      const endpoint = currentVolumeIndex !== null
-        ? 'https://catalogomanga.onrender.com/api/mangas/update-volume'
-        : 'https://catalogomanga.onrender.com/api/mangas/add-volume';
-
-      const method = currentVolumeIndex !== null ? 'PUT' : 'POST';
-
-      const response = await fetch(endpoint, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          mangaId: currentManga,
-          volume: newVolume,
-          volumeIndex: currentVolumeIndex,
-        }),
-      });
-
-      if (response.ok) {
-        const updatedManga = await response.json();
-        setCollections((prev) =>
-          prev.map((manga) =>
-            manga._id === currentManga ? { ...manga, vols: updatedManga.manga.vols } : manga
-          )
-        );
-        alert(currentVolumeIndex !== null ? 'Volume atualizado com sucesso!' : 'Volume adicionado com sucesso!');
-      } else {
-        alert('Erro ao salvar volume.');
-      }
-    } catch (error) {
-      console.error('Erro ao salvar volume:', error);
+    if (response.ok) {
+      const updatedUser = await response.json();
+      setCollections(updatedUser.mangas.filter((m) => m.listType === 'collection'));
+      alert('✅ Volume salvo com sucesso!');
+    } else {
+      alert('❌ Erro ao salvar volume.');
     }
+  } catch (error) {
+    console.error('❌ Erro ao salvar volume:', error);
+  }
 
-    setCurrentManga(null);
-    setCurrentVolumeIndex(null);
-  };
+  setCurrentManga(null);
+  setCurrentVolumeIndex(null);
+};
 
-  // Função para deletar um volume
-  const deleteVolume = async (mangaId, volumeIndex) => {
-    try {
-      const response = await fetch('https://catalogomanga.onrender.com/api/mangas/delete-volume', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ mangaId, volumeIndex }),
-      });
+// 🟢 Deletar um volume dentro do usuário
+const deleteVolume = async (mangaId, volumeIndex) => {
+  const token = localStorage.getItem('token');
+  const userId = JSON.parse(atob(token.split('.')[1])).id;
 
-      if (response.ok) {
-        const updatedManga = await response.json();
-        setCollections((prev) =>
-          prev.map((manga) =>
-            manga._id === mangaId ? { ...manga, vols: updatedManga.manga.vols } : manga
-          )
-        );
-        alert('Volume deletado com sucesso!');
-      } else {
-        alert('Erro ao deletar volume.');
-      }
-    } catch (error) {
-      console.error('Erro ao deletar volume:', error);
+  try {
+    const response = await fetch(`https://catalogomanga.onrender.com/api/users/${userId}/delete-volume`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ mangaId, volumeIndex }),
+    });
+
+    if (response.ok) {
+      const updatedUser = await response.json();
+      setCollections(updatedUser.mangas.filter((m) => m.listType === 'collection'));
+      alert('✅ Volume deletado com sucesso!');
+    } else {
+      alert('❌ Erro ao deletar volume.');
     }
-  };
+  } catch (error) {
+    console.error('❌ Erro ao deletar volume:', error);
+  }
+};
 
-  // Função para calcular o total dos volumes de um mangá
-  const calculateTotal = (volumes) => {
-    return volumes.reduce((total, vol) => total + vol.price, 0).toFixed(2);
-  };
+// 🟢 Calcular o total dos volumes
+const calculateTotal = (volumes) => {
+  return volumes.reduce((total, vol) => total + vol.price, 0).toFixed(2);
+};
 
   return (
     <div className="myspace">
