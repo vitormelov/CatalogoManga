@@ -118,5 +118,24 @@ const getWishlistMangas = async (req, res) => {
   }
 };
 
+// Buscar apenas os mangás da coleção do usuário
+const getCollectionMangas = async (req, res) => {
+  try {
+    const { userId } = req.params;
 
-module.exports = { createUser, loginUser, getWishlistMangas };
+    // Encontrar o usuário e filtrar apenas os mangás da coleção
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    const collectionMangas = user.mangas.filter(manga => manga.listType === 'collection');
+
+    res.status(200).json(collectionMangas);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao buscar coleção.', error });
+  }
+};
+
+module.exports = { createUser, loginUser, getWishlistMangas, getCollectionMangas };

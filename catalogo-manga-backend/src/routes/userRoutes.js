@@ -20,6 +20,9 @@ router.post('/login', (req, res, next) => {
 
 router.get('/:userId/wishlist', getWishlistMangas);
 
+// Rota para obter os mangás da coleção do usuário
+router.get('/:userId/collection', getCollectionMangas);
+
 console.log('✅ Rotas de usuários carregadas!');
 
 module.exports = router;
