@@ -5,14 +5,13 @@ import '../style/WishList.css';
 const WishList = () => {
   const [wishlist, setWishlist] = useState([]);
 
-  // Buscar a lista de desejos do backend
   useEffect(() => {
     const fetchWishlist = async () => {
       const token = localStorage.getItem('token');
       const userId = JSON.parse(atob(token.split('.')[1])).id;
 
       try {
-        const response = await fetch(`https://catalogomanga.onrender.com/api/mangas?userId=${userId}&listType=wishlist`);
+        const response = await fetch(`https://catalogomanga.onrender.com/api/users/${userId}/wishlist`);
         const data = await response.json();
         setWishlist(data);
       } catch (error) {
@@ -23,16 +22,16 @@ const WishList = () => {
     fetchWishlist();
   }, []);
 
-  // Função para mover o mangá para a coleção (alterando apenas o listType)
+  // Função para mover o mangá para a coleção dentro do usuário
   const moveToCollection = async (mangaId) => {
     const token = localStorage.getItem('token');
     const userId = JSON.parse(atob(token.split('.')[1])).id;
 
     try {
-      const response = await fetch('https://catalogomanga.onrender.com/api/mangas/move-to-collection', {
+      const response = await fetch(`https://catalogomanga.onrender.com/api/users/${userId}/move-manga`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, mangaId }),
+        body: JSON.stringify({ mangaId }),
       });
 
       if (response.ok) {
@@ -46,13 +45,18 @@ const WishList = () => {
     }
   };
 
-  // Função para deletar o mangá (já existente no MySpace)
+  // Função para deletar o mangá dentro do usuário
   const deleteManga = async (mangaId) => {
+    const token = localStorage.getItem('token');
+    const userId = JSON.parse(atob(token.split('.')[1])).id;
+
     try {
-      const response = await fetch(`https://catalogomanga.onrender.com/api/mangas/delete/${mangaId}`, {
+      const response = await fetch(`https://catalogomanga.onrender.com/api/users/${userId}/delete-manga`, {
         method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mangaId }),
       });
-  
+
       if (response.ok) {
         setWishlist((prev) => prev.filter((manga) => manga._id !== mangaId));
         alert('Mangá deletado com sucesso!');
