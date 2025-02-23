@@ -1,5 +1,5 @@
 const express = require('express');
-const { createUser, loginUser } = require('../controllers/userController');
+const { createUser, loginUser, getWishlistMangas } = require('../controllers/userController');
 
 const router = express.Router();
 
@@ -17,6 +17,8 @@ router.post('/login', (req, res, next) => {
   console.log('📩 Requisição recebida em /login');
   next();
 }, loginUser);
+
+router.get('/:userId/wishlist', getWishlistMangas);
 
 console.log('✅ Rotas de usuários carregadas!');
 
