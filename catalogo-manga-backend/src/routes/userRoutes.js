@@ -1,5 +1,5 @@
 const express = require('express');
-const { createUser, loginUser, getWishlistMangas, getCollectionMangas } = require('../controllers/userController');
+const { createUser, loginUser, getWishlistMangas, getCollectionMangas, deleteManga, updateVolume, deleteVolume } = require('../controllers/userController');
 
 const router = express.Router();
 
@@ -22,6 +22,10 @@ router.get('/:userId/wishlist', getWishlistMangas);
 
 // Rota para obter os mangás da coleção do usuário
 router.get('/:userId/collection', getCollectionMangas);
+
+router.delete('/:userId/delete-manga', deleteManga);
+router.put('/:userId/update-volume', updateVolume);
+router.delete('/:userId/delete-volume', deleteVolume);
 
 console.log('✅ Rotas de usuários carregadas!');
 
