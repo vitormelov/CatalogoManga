@@ -14,14 +14,15 @@ const MySpace = () => {
     status: 'Lacrado', // Valor padrão para a situação
   });
 
-  // Função para buscar a coleção do usuário no backend
+  // 🟢 Buscar coleção do usuário corretamente
   useEffect(() => {
     const fetchCollections = async () => {
       const token = localStorage.getItem('token');
       const userId = JSON.parse(atob(token.split('.')[1])).id;
 
       try {
-        const response = await fetch(`https://catalogomanga.onrender.com/api/mangas?userId=${userId}&listType=collection`);
+        // 🚀 Agora buscamos os mangás dentro do usuário
+        const response = await fetch(`https://catalogomanga.onrender.com/api/users/${userId}/collection`);
         const data = await response.json();
         setCollections(data);
       } catch (error) {
@@ -32,7 +33,7 @@ const MySpace = () => {
     fetchCollections();
   }, []);
 
-  // Função para deletar um mangá
+  // 🟢 Função para deletar um mangá
   const deleteManga = async (mangaId) => {
     try {
       const response = await fetch(`https://catalogomanga.onrender.com/api/mangas/delete/${mangaId}`, {
@@ -49,7 +50,7 @@ const MySpace = () => {
       console.error('Erro ao deletar mangá:', error);
     }
   };
-
+  
   // Função para abrir o modal para adicionar ou editar volume
   const openForm = (mangaId, volumeIndex = null) => {
     setCurrentManga(mangaId);
