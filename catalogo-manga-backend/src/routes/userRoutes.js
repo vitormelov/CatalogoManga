@@ -1,36 +1,66 @@
 const express = require('express');
-const { createUser, loginUser, getWishlistMangas, getCollectionMangas, deleteManga, updateVolume, deleteVolume } = require('../controllers/userController');
+const {
+  createUser,
+  loginUser,
+  getMangas,
+  addManga,
+  deleteManga,
+  addVolume,
+  deleteVolume,
+  moveMangaToCollection
+} = require('../controllers/userController');
 
 const router = express.Router();
 
-// 🔹 Log para verificar se as rotas estão sendo carregadas
 console.log('🔄 Carregando rotas de usuários...');
 
-// 🔹 Criar conta
+// 🟢 Criar conta
 router.post('/register', (req, res, next) => {
   console.log('📩 Requisição recebida em /register');
   next();
 }, createUser);
 
-// 🔹 Login
+// 🟢 Login
 router.post('/login', (req, res, next) => {
   console.log('📩 Requisição recebida em /login');
   next();
 }, loginUser);
 
-router.get('/:userId/wishlist', getWishlistMangas);
+// 🟢 Buscar mangás (wishlist ou coleção)
+router.get('/:userId/mangas/:listType', (req, res, next) => {
+  console.log(`📩 Requisição recebida para buscar ${req.params.listType} de usuário: ${req.params.userId}`);
+  next();
+}, getMangas);
 
-// Rota para obter os mangás da coleção do usuário
-router.get('/:userId/collection', getCollectionMangas);
+// 🟢 Adicionar mangá ao usuário
+router.post('/:userId/add-manga', (req, res, next) => {
+  console.log(`📩 Adicionando mangá para usuário: ${req.params.userId}`);
+  next();
+}, addManga);
 
-// 🟢 Deletar um mangá da coleção do usuário
-router.delete('/delete-manga/:userId', deleteManga);
+// 🟢 Deletar um mangá do usuário
+router.delete('/:userId/delete-manga', (req, res, next) => {
+  console.log(`🗑️ Deletando mangá para usuário: ${req.params.userId}`);
+  next();
+}, deleteManga);
 
-// 🟢 Atualizar ou adicionar volume em um mangá
-router.put('/update-volume/:userId', updateVolume);
+// 🟢 Adicionar volume a um mangá
+router.post('/:userId/add-volume', (req, res, next) => {
+  console.log(`📩 Adicionando volume para usuário: ${req.params.userId}`);
+  next();
+}, addVolume);
 
 // 🟢 Deletar um volume de um mangá
-router.delete('/delete-volume/:userId', deleteVolume);
+router.delete('/:userId/delete-volume', (req, res, next) => {
+  console.log(`🗑️ Deletando volume para usuário: ${req.params.userId}`);
+  next();
+}, deleteVolume);
+
+// 🟢 Mover mangá da wishlist para coleção
+router.put('/:userId/move-to-collection', (req, res, next) => {
+  console.log(`📩 Movendo mangá para coleção do usuário: ${req.params.userId}`);
+  next();
+}, moveMangaToCollection);
 
 console.log('✅ Rotas de usuários carregadas!');
 

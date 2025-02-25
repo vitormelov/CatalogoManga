@@ -2,221 +2,184 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Criar um novo usuário
+// 🟢 Criar um novo usuário
 const createUser = async (req, res) => {
   try {
     console.log('📩 Recebendo requisição para criar usuário...');
-
     const { username, email, password } = req.body;
 
-    // Validação: verificar se todos os campos estão preenchidos
     if (!username || !email || !password) {
-      console.error('❌ Erro: Campos obrigatórios faltando!');
       return res.status(400).json({ message: 'Todos os campos são obrigatórios!' });
     }
 
-    // Verificar se o usuário já existe
-    console.log('🔍 Verificando se o usuário já existe...');
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-
     if (existingUser) {
-      console.error('❌ Erro: Usuário já existe!');
       return res.status(400).json({ message: 'Usuário ou e-mail já cadastrados!' });
     }
 
-    // Criar hash da senha antes de salvar
     console.log('🔒 Criando hash da senha...');
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Criar novo usuário com a senha criptografada
-    console.log('✅ Criando usuário no banco de dados...');
-    const user = new User({ 
-      username, 
-      email, 
-      password: hashedPassword, // 🔹 Agora a senha será salva criptografada!
-      mangas: [] // Garante que a coleção de mangas do usuário esteja vazia inicialmente
-    });
-
+    const user = new User({ username, email, password: hashedPassword, mangas: [] });
     await user.save();
 
-    console.log('🎉 Usuário criado com sucesso!');
     res.status(201).json({ message: 'Conta criada com sucesso!' });
-
   } catch (error) {
-    console.error('❌ Erro ao criar a conta:', error);
     res.status(500).json({ message: 'Erro ao criar a conta.', error: error.message });
   }
 };
 
-// Login do usuário
+// 🟢 Login do usuário
 const loginUser = async (req, res) => {
   try {
     console.log("📩 Requisição recebida em /login");
-
     const { username, password } = req.body;
 
-    // Verificar se os campos foram preenchidos
     if (!username || !password) {
-      console.log("❌ Erro: Campos obrigatórios faltando!");
       return res.status(400).json({ message: "Usuário e senha são obrigatórios!" });
     }
 
-    console.log(`🔍 Buscando usuário: ${username}`);
-
-    // Buscar usuário no banco
     const user = await User.findOne({ username });
     if (!user) {
-      console.log("❌ Usuário não encontrado!");
       return res.status(400).json({ message: "Usuário não encontrado!" });
     }
 
-    console.log("🔑 Verificando senha...");
-
-    // Comparar senha digitada com a salva no banco
     const isPasswordValid = await bcrypt.compare(password, user.password);
-
     if (!isPasswordValid) {
-      console.log("❌ Senha incorreta!");
       return res.status(400).json({ message: "Senha incorreta!" });
     }
 
-    console.log("✅ Senha correta!");
-
-    // Gerar token JWT
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
 
-    console.log("✅ Login realizado com sucesso!");
     res.status(200).json({
       message: "Login realizado com sucesso!",
       token,
-      user: { id: user._id, username: user.username, email: user.email },
+      user: { id: user._id, username: user.username, email: user.email, mangas: user.mangas },
     });
-
   } catch (error) {
-    console.error("❌ Erro ao realizar login:", error);
     res.status(500).json({ message: "Erro ao realizar login.", error: error.message });
   }
 };
 
-const getWishlistMangas = async (req, res) => {
+// 🟢 Buscar mangás por tipo (wishlist ou collection)
+const getMangas = async (req, res) => {
   try {
-    const { userId } = req.params;
-
-    // Encontrar o usuário e filtrar apenas os mangás da wishlist
+    const { userId, listType } = req.params;
     const user = await User.findById(userId);
+    
+    if (!user) return res.status(404).json({ message: 'Usuário não encontrado.' });
 
-    if (!user) {
-      return res.status(404).json({ message: 'Usuário não encontrado.' });
-    }
-
-    const wishlistMangas = user.mangas.filter(manga => manga.listType === 'wishlist');
-
-    res.status(200).json(wishlistMangas);
+    const mangas = user.mangas.filter(manga => manga.listType === listType);
+    res.status(200).json(mangas);
   } catch (error) {
-    res.status(500).json({ message: 'Erro ao buscar wishlist.', error });
+    res.status(500).json({ message: "Erro ao buscar mangás.", error: error.message });
   }
 };
 
-// Buscar apenas os mangás da coleção do usuário
-const getCollectionMangas = async (req, res) => {
+// 🟢 Adicionar um mangá ao usuário
+const addManga = async (req, res) => {
   try {
-    const { userId } = req.params;
-
-    // Encontrar o usuário e filtrar apenas os mangás da coleção
+    const { userId, mal_id, title, images, rank, popularity, published, volumes, chapters, listType } = req.body;
     const user = await User.findById(userId);
 
-    if (!user) {
-      return res.status(404).json({ message: 'Usuário não encontrado.' });
-    }
+    if (!user) return res.status(404).json({ message: "Usuário não encontrado!" });
 
-    const collectionMangas = user.mangas.filter(manga => manga.listType === 'collection');
+    const existingManga = user.mangas.find((m) => m.mal_id === mal_id && m.listType === listType);
+    if (existingManga) return res.status(400).json({ message: "Mangá já está nesta lista!" });
 
-    res.status(200).json(collectionMangas);
+    user.mangas.push({ mal_id, title, images, rank, popularity, published, volumes, chapters, listType, vols: [] });
+
+    await user.save();
+    res.status(201).json({ message: "Mangá adicionado com sucesso!", mangas: user.mangas });
   } catch (error) {
-    res.status(500).json({ message: 'Erro ao buscar coleção.', error });
+    res.status(500).json({ message: "Erro ao adicionar mangá.", error: error.message });
   }
 };
 
-// 🟢 Função para deletar um mangá da coleção do usuário
+// 🟢 Deletar um mangá do usuário
 const deleteManga = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const { mangaIndex } = req.body;
-
+    const { userId, mal_id } = req.body;
     const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'Usuário não encontrado.' });
-    }
 
-    if (mangaIndex < 0 || mangaIndex >= user.mangas.length) {
-      return res.status(400).json({ message: 'Índice de mangá inválido.' });
-    }
+    if (!user) return res.status(404).json({ message: "Usuário não encontrado!" });
 
-    user.mangas.splice(mangaIndex, 1); // Remove o mangá pelo índice
+    user.mangas = user.mangas.filter((m) => m.mal_id !== mal_id);
     await user.save();
 
-    res.status(200).json(user);
+    res.status(200).json({ message: "Mangá deletado com sucesso!", mangas: user.mangas });
   } catch (error) {
-    res.status(500).json({ message: 'Erro ao deletar mangá.', error });
+    res.status(500).json({ message: "Erro ao deletar mangá.", error: error.message });
   }
 };
 
-// 🟢 Função para adicionar/editar um volume dentro de um mangá
-const updateVolume = async (req, res) => {
+// 🟢 Adicionar um volume a um mangá do usuário
+const addVolume = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const { mangaIndex, volume, volumeIndex } = req.body;
-
+    const { userId, mal_id, volume } = req.body;
     const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'Usuário não encontrado.' });
-    }
 
-    if (mangaIndex < 0 || mangaIndex >= user.mangas.length) {
-      return res.status(400).json({ message: 'Índice de mangá inválido.' });
-    }
+    if (!user) return res.status(404).json({ message: "Usuário não encontrado!" });
 
-    if (volumeIndex !== null) {
-      user.mangas[mangaIndex].vols[volumeIndex] = volume; // Atualiza volume
-    } else {
-      user.mangas[mangaIndex].vols.push(volume); // Adiciona novo volume
-    }
+    const manga = user.mangas.find((m) => m.mal_id === mal_id);
+    if (!manga) return res.status(404).json({ message: "Mangá não encontrado!" });
 
+    manga.vols.push(volume);
     await user.save();
 
-    res.status(200).json(user);
+    res.status(200).json({ message: "Volume adicionado com sucesso!", mangas: user.mangas });
   } catch (error) {
-    res.status(500).json({ message: 'Erro ao atualizar volume.', error });
+    res.status(500).json({ message: "Erro ao adicionar volume.", error: error.message });
   }
 };
 
-// 🟢 Função para deletar um volume dentro de um mangá
+// 🟢 Deletar um volume de um mangá do usuário
 const deleteVolume = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const { mangaIndex, volumeIndex } = req.body;
-
+    const { userId, mal_id, volumeIndex } = req.body;
     const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'Usuário não encontrado.' });
-    }
 
-    if (mangaIndex < 0 || mangaIndex >= user.mangas.length) {
-      return res.status(400).json({ message: 'Índice de mangá inválido.' });
-    }
+    if (!user) return res.status(404).json({ message: "Usuário não encontrado!" });
 
-    if (volumeIndex < 0 || volumeIndex >= user.mangas[mangaIndex].vols.length) {
-      return res.status(400).json({ message: 'Índice de volume inválido.' });
-    }
+    const manga = user.mangas.find((m) => m.mal_id === mal_id);
+    if (!manga) return res.status(404).json({ message: "Mangá não encontrado!" });
 
-    user.mangas[mangaIndex].vols.splice(volumeIndex, 1); // Remove volume
+    manga.vols.splice(volumeIndex, 1);
     await user.save();
 
-    res.status(200).json(user);
+    res.status(200).json({ message: "Volume deletado com sucesso!", mangas: user.mangas });
   } catch (error) {
-    res.status(500).json({ message: 'Erro ao deletar volume.', error });
+    res.status(500).json({ message: "Erro ao deletar volume.", error: error.message });
   }
 };
 
-module.exports = { createUser, loginUser, getWishlistMangas, getCollectionMangas, deleteManga, updateVolume, deleteVolume };
+// 🟢 Mover um mangá da wishlist para a coleção
+const moveMangaToCollection = async (req, res) => {
+  try {
+    const { userId, mal_id } = req.body;
+    const user = await User.findById(userId);
+
+    if (!user) return res.status(404).json({ message: "Usuário não encontrado!" });
+
+    const manga = user.mangas.find((m) => m.mal_id === mal_id);
+    if (!manga) return res.status(404).json({ message: "Mangá não encontrado na wishlist!" });
+
+    manga.listType = "collection";
+    await user.save();
+
+    res.status(200).json({ message: "Mangá movido para a coleção!", mangas: user.mangas });
+  } catch (error) {
+    res.status(500).json({ message: "Erro ao mover mangá.", error: error.message });
+  }
+};
+
+module.exports = {
+  createUser,
+  loginUser,
+  getMangas,
+  addManga,
+  deleteManga,
+  addVolume,
+  deleteVolume,
+  moveMangaToCollection
+};
