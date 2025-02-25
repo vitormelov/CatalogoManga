@@ -65,14 +65,21 @@ const loginUser = async (req, res) => {
 const getMangas = async (req, res) => {
   try {
     const { userId, listType } = req.params;
+    console.log(`🔍 Buscando ${listType} para usuário: ${userId}`);
+
     const user = await User.findById(userId);
-    
-    if (!user) return res.status(404).json({ message: 'Usuário não encontrado.' });
+    if (!user) {
+      console.log('❌ Usuário não encontrado!');
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
 
     const mangas = user.mangas.filter(manga => manga.listType === listType);
+    console.log(`📦 Mangás encontrados:`, mangas);
+
     res.status(200).json(mangas);
   } catch (error) {
-    res.status(500).json({ message: "Erro ao buscar mangás.", error: error.message });
+    console.error('❌ Erro ao buscar mangás:', error);
+    res.status(500).json({ message: 'Erro ao buscar mangás.', error });
   }
 };
 

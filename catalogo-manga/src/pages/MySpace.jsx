@@ -23,13 +23,17 @@ const MySpace = () => {
     const fetchCollections = async () => {
       try {
         const response = await fetch(`${API_URL}/${userId}/mangas/collection`);
+        if (!response.ok) {
+          throw new Error(`Erro na API: ${response.status}`);
+        }
         const data = await response.json();
-        setCollections(data); // Agora pega apenas os mangás dentro do usuário
+        console.log('📥 Dados recebidos:', data); // 🔍 Debug para verificar resposta
+        setCollections(data);
       } catch (error) {
         console.error('Erro ao buscar coleção:', error);
       }
     };
-
+  
     fetchCollections();
   }, [userId]);
 
