@@ -48,7 +48,8 @@ const deleteManga = async (mangaId) => {
     });
 
     if (response.ok) {
-      setCollections((prev) => prev.filter((manga) => manga._id !== mangaId));
+      const updatedUser = await response.json();
+      setCollections(updatedUser.mangas.filter((m) => m.listType === 'collection'));
       alert('✅ Mangá deletado com sucesso!');
     } else {
       alert('❌ Erro ao deletar mangá.');
@@ -64,10 +65,10 @@ const openForm = (mangaId, volumeIndex = null) => {
   setCurrentVolumeIndex(volumeIndex);
 
   if (volumeIndex !== null) {
-    const selectedVolume = collections
-      .find((manga) => manga._id === mangaId)
-      .vols[volumeIndex];
-    setFormData({ ...selectedVolume });
+    const selectedManga = collections.find((manga) => manga._id === mangaId);
+    if (selectedManga) {
+      setFormData({ ...selectedManga.vols[volumeIndex] });
+    }
   } else {
     setFormData({ volume: '', name: '', date: '', price: '', status: 'Lacrado' });
   }
