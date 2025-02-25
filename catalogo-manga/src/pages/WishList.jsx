@@ -11,7 +11,7 @@ const WishList = () => {
       const userId = JSON.parse(atob(token.split('.')[1])).id;
 
       try {
-        const response = await fetch(`https://catalogomanga.onrender.com/api/users/${userId}/wishlist`);
+        const response = await fetch(`https://catalogomanga.onrender.com/api/users/${userId}/manga/wishlist`);
         const data = await response.json();
         setWishlist(data);
       } catch (error) {

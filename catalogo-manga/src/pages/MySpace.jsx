@@ -22,7 +22,7 @@ const MySpace = () => {
   useEffect(() => {
     const fetchCollections = async () => {
       try {
-        const response = await fetch(`${API_URL}/${userId}/collection`);
+        const response = await fetch(`${API_URL}/${userId}/mangas/collection`);
         const data = await response.json();
         setCollections(data); // Agora pega apenas os mangás dentro do usuário
       } catch (error) {
