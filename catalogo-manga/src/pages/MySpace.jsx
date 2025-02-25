@@ -3,147 +3,132 @@ import Header from '../components/Header';
 import '../style/MySpace.css';
 
 const MySpace = () => {
-  const [collections, setCollections] = useState([]); // Coleção obtida do backend
-  const [currentManga, setCurrentManga] = useState(null); // Mangá atualmente editado
-  const [currentVolumeIndex, setCurrentVolumeIndex] = useState(null); // Índice do volume sendo editado
+  const [collections, setCollections] = useState([]); // Lista de mangás na coleção
+  const [currentMangaIndex, setCurrentMangaIndex] = useState(null);
+  const [currentVolumeIndex, setCurrentVolumeIndex] = useState(null);
   const [formData, setFormData] = useState({
     volume: '',
     name: '',
     date: '',
     price: '',
-    status: 'Lacrado', // Valor padrão para a situação
+    status: 'Lacrado',
   });
+
+  const token = localStorage.getItem('token');
+  const userId = JSON.parse(atob(token.split('.')[1])).id;
+  const API_URL = 'https://catalogomanga.onrender.com/api/users';
 
   // 🟢 Buscar coleção do usuário corretamente
   useEffect(() => {
     const fetchCollections = async () => {
-      const token = localStorage.getItem('token');
-      const userId = JSON.parse(atob(token.split('.')[1])).id;
-
       try {
-        // 🚀 Agora buscamos os mangás dentro do usuário
-        const response = await fetch(`https://catalogomanga.onrender.com/api/users/${userId}/collection`);
+        const response = await fetch(`${API_URL}/${userId}/collection`);
         const data = await response.json();
-        setCollections(data);
+        setCollections(data); // Agora pega apenas os mangás dentro do usuário
       } catch (error) {
         console.error('Erro ao buscar coleção:', error);
       }
     };
 
     fetchCollections();
-  }, []);
+  }, [userId]);
 
-// 🟢 Deletar um mangá da coleção do usuário
-const deleteManga = async (mangaId) => {
-  const token = localStorage.getItem('token');
-  const userId = JSON.parse(atob(token.split('.')[1])).id;
+  // 🟢 Deletar um mangá da coleção do usuário
+  const deleteManga = async (mangaIndex) => {
+    try {
+      const response = await fetch(`${API_URL}/${userId}/delete-manga`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mangaIndex }),
+      });
 
-  try {
-    const response = await fetch(`https://catalogomanga.onrender.com/api/users/${userId}/delete-manga`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ mangaId }),
-    });
-
-    if (response.ok) {
-      const updatedUser = await response.json();
-      setCollections(updatedUser.mangas.filter((m) => m.listType === 'collection'));
-      alert('✅ Mangá deletado com sucesso!');
-    } else {
-      alert('❌ Erro ao deletar mangá.');
+      if (response.ok) {
+        setCollections((prev) => prev.filter((_, index) => index !== mangaIndex));
+        alert('✅ Mangá deletado com sucesso!');
+      } else {
+        alert('❌ Erro ao deletar mangá.');
+      }
+    } catch (error) {
+      console.error('❌ Erro ao deletar mangá:', error);
     }
-  } catch (error) {
-    console.error('❌ Erro ao deletar mangá:', error);
-  }
-};
-
-// 🟢 Abrir modal para adicionar ou editar volume
-const openForm = (mangaId, volumeIndex = null) => {
-  setCurrentManga(mangaId);
-  setCurrentVolumeIndex(volumeIndex);
-
-  if (volumeIndex !== null) {
-    const selectedManga = collections.find((manga) => manga._id === mangaId);
-    if (selectedManga) {
-      setFormData({ ...selectedManga.vols[volumeIndex] });
-    }
-  } else {
-    setFormData({ volume: '', name: '', date: '', price: '', status: 'Lacrado' });
-  }
-};
-
-// 🟢 Salvar ou editar volume no MongoDB
-const saveVolume = async () => {
-  if (!currentManga) return;
-  
-  const token = localStorage.getItem('token');
-  const userId = JSON.parse(atob(token.split('.')[1])).id;
-  
-  const newVolume = {
-    ...formData,
-    price: parseFloat(formData.price),
   };
 
-  try {
-    const response = await fetch(`https://catalogomanga.onrender.com/api/users/${userId}/update-volume`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        mangaId: currentManga,
-        volume: newVolume,
-        volumeIndex: currentVolumeIndex,
-      }),
-    });
+  // 🟢 Abrir modal para adicionar ou editar volume
+  const openForm = (mangaIndex, volumeIndex = null) => {
+    setCurrentMangaIndex(mangaIndex);
+    setCurrentVolumeIndex(volumeIndex);
 
-    if (response.ok) {
-      const updatedUser = await response.json();
-      setCollections(updatedUser.mangas.filter((m) => m.listType === 'collection'));
-      alert('✅ Volume salvo com sucesso!');
+    if (volumeIndex !== null) {
+      const selectedManga = collections[mangaIndex];
+      if (selectedManga) {
+        setFormData({ ...selectedManga.vols[volumeIndex] });
+      }
     } else {
-      alert('❌ Erro ao salvar volume.');
+      setFormData({ volume: '', name: '', date: '', price: '', status: 'Lacrado' });
     }
-  } catch (error) {
-    console.error('❌ Erro ao salvar volume:', error);
-  }
+  };
 
-  setCurrentManga(null);
-  setCurrentVolumeIndex(null);
-};
+  // 🟢 Salvar ou editar volume no MongoDB
+  const saveVolume = async () => {
+    if (currentMangaIndex === null) return;
 
-// 🟢 Deletar um volume dentro do usuário
-const deleteVolume = async (mangaId, volumeIndex) => {
-  const token = localStorage.getItem('token');
-  const userId = JSON.parse(atob(token.split('.')[1])).id;
+    const newVolume = {
+      ...formData,
+      price: parseFloat(formData.price),
+    };
 
-  try {
-    const response = await fetch(`https://catalogomanga.onrender.com/api/users/${userId}/delete-volume`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ mangaId, volumeIndex }),
-    });
+    try {
+      const response = await fetch(`${API_URL}/${userId}/update-volume`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mangaIndex: currentMangaIndex,
+          volume: newVolume,
+          volumeIndex: currentVolumeIndex,
+        }),
+      });
 
-    if (response.ok) {
-      const updatedUser = await response.json();
-      setCollections(updatedUser.mangas.filter((m) => m.listType === 'collection'));
-      alert('✅ Volume deletado com sucesso!');
-    } else {
-      alert('❌ Erro ao deletar volume.');
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setCollections(updatedUser.mangas.filter((m) => m.listType === 'collection'));
+        alert('✅ Volume salvo com sucesso!');
+      } else {
+        alert('❌ Erro ao salvar volume.');
+      }
+    } catch (error) {
+      console.error('❌ Erro ao salvar volume:', error);
     }
-  } catch (error) {
-    console.error('❌ Erro ao deletar volume:', error);
-  }
-};
 
-// 🟢 Calcular o total dos volumes
-const calculateTotal = (volumes) => {
-  return volumes.reduce((total, vol) => total + vol.price, 0).toFixed(2);
-};
+    setCurrentMangaIndex(null);
+    setCurrentVolumeIndex(null);
+  };
+
+  // 🟢 Deletar um volume dentro do usuário
+  const deleteVolume = async (mangaIndex, volumeIndex) => {
+    try {
+      const response = await fetch(`${API_URL}/${userId}/delete-volume`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mangaIndex, volumeIndex }),
+      });
+
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setCollections(updatedUser.mangas.filter((m) => m.listType === 'collection'));
+        alert('✅ Volume deletado com sucesso!');
+      } else {
+        alert('❌ Erro ao deletar volume.');
+      }
+    } catch (error) {
+      console.error('❌ Erro ao deletar volume:', error);
+    }
+  };
+
+  // 🟢 Calcular o total dos volumes
+  const calculateTotal = (volumes) => {
+    return volumes.reduce((total, vol) => total + (vol.price || 0), 0).toFixed(2);
+  };
+
 
   return (
     <div className="myspace">
