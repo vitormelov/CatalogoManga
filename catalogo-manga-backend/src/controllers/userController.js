@@ -138,4 +138,85 @@ const getCollectionMangas = async (req, res) => {
   }
 };
 
-module.exports = { createUser, loginUser, getWishlistMangas, getCollectionMangas };
+// 🟢 Função para deletar um mangá da coleção do usuário
+const deleteManga = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { mangaIndex } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    if (mangaIndex < 0 || mangaIndex >= user.mangas.length) {
+      return res.status(400).json({ message: 'Índice de mangá inválido.' });
+    }
+
+    user.mangas.splice(mangaIndex, 1); // Remove o mangá pelo índice
+    await user.save();
+
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao deletar mangá.', error });
+  }
+};
+
+// 🟢 Função para adicionar/editar um volume dentro de um mangá
+const updateVolume = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { mangaIndex, volume, volumeIndex } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    if (mangaIndex < 0 || mangaIndex >= user.mangas.length) {
+      return res.status(400).json({ message: 'Índice de mangá inválido.' });
+    }
+
+    if (volumeIndex !== null) {
+      user.mangas[mangaIndex].vols[volumeIndex] = volume; // Atualiza volume
+    } else {
+      user.mangas[mangaIndex].vols.push(volume); // Adiciona novo volume
+    }
+
+    await user.save();
+
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao atualizar volume.', error });
+  }
+};
+
+// 🟢 Função para deletar um volume dentro de um mangá
+const deleteVolume = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { mangaIndex, volumeIndex } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    if (mangaIndex < 0 || mangaIndex >= user.mangas.length) {
+      return res.status(400).json({ message: 'Índice de mangá inválido.' });
+    }
+
+    if (volumeIndex < 0 || volumeIndex >= user.mangas[mangaIndex].vols.length) {
+      return res.status(400).json({ message: 'Índice de volume inválido.' });
+    }
+
+    user.mangas[mangaIndex].vols.splice(volumeIndex, 1); // Remove volume
+    await user.save();
+
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao deletar volume.', error });
+  }
+};
+
+module.exports = { createUser, loginUser, getWishlistMangas, getCollectionMangas, deleteManga, updateVolume, deleteVolume };
