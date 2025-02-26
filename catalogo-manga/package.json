@@ -17,7 +17,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && npm install -g npm@latest && npm install && npm run start",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -40,7 +40,7 @@
     ]
   },
   "engines": {
-  "node": "18",
+  "node": "20.17.0",
   "npm": "11.1.0"
   }
 }
